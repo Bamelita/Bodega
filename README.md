@@ -1,165 +1,165 @@
-~# Bodega - Inventory Management System
+# Bodega - Sistema de Gestión de Inventario
 
-Modern web application for inventory management with role-based access control, audit logging, and automatic backups.
+Aplicación web moderna para la gestión de inventario con control de acceso basado en roles, registro de auditoría, interfaz estética (glassmorphism) y respaldos automáticos.
 
-## 🚀 Quick Start
+## 🚀 Inicio Rápido
 
-### Prerequisites
+### Requisitos Previos
 
 - Node.js 16+
-- npm or yarn
+- npm o yarn
 
-### Installation
+### Instalación
 
-1. **Clone the repository**
+1. **Clonar el repositorio**
 
 ```bash
 git clone https://github.com/Bamelita/Bodega.git
 cd Bodega
 ```
 
-2. **Install dependencies**
+2. **Instalar dependencias**
 
 ```bash
-# Root (for concurrently)
+# Raíz (para correr cliente y servidor simultáneamente)
 npm install
 
-# Server
+# Servidor
 cd server
 npm install
 
-# Client
+# Cliente
 cd ../client
 npm install
 ```
 
-3. **Configure environment**
+3. **Configurar el entorno**
 
 ```bash
 cd server
 cp .env.example .env
-# Edit .env with your settings
+# Edita .env con tus configuraciones
 ```
 
-4. **Initialize database**
+4. **Inicializar la base de datos**
 
 ```bash
 cd server
 node seed.js
 ```
 
-5. **Start the application**
+5. **Iniciar la aplicación**
 
 ```bash
-# From root directory
+# Desde el directorio raíz
 npm start
 ```
 
-Access the app at: `http://localhost:5173`
+Accede a la aplicación en: `http://localhost:5173`
 
-**Default credentials:**
+**Credenciales por defecto:**
 
-- Username: `admin`
-- Password: `admin123`
+- Usuario: `admin`
+- Contraseña: `admin123`
 
-## ✨ Features
+## ✨ Características
 
-### Core
+### Principales
 
-- 🔐 JWT Authentication
-- 👥 Role-based access (Admin/User)
-- 📦 Product management (CRUD)
-- 📊 Inventory tracking with USD/VES prices
-- 📈 Sales & purchase movements
-- 💰 Payment tracking
+- 🔐 Autenticación mediante JWT
+- 👥 Acceso basado en roles (Administrador/Usuario)
+- 📦 Gestión de productos (CRUD completo)
+- 📊 Control de inventario con precios en USD/VES
+- 📈 Registro de movimientos de ventas y compras
+- 💰 Seguimiento de pagos
 
-### Admin Features
+### Funciones de Administrador
 
-- 👤 User management
-- 💾 Manual & automatic backups
-- 🗑️ Automatic backup retention
-- 📋 Audit logs (all actions tracked)
-- 📄 Excel import/export
+- 👤 Gestión de usuarios
+- 💾 Respaldos manuales y automáticos
+- 🗑️ Retención automática de respaldos
+- 📋 Registro de auditoría (todas las acciones rastreadas)
+- 📄 Importación y exportación a Excel
 
-### UX
+### Interfaz (UX/UI)
 
-- 🎨 Modern UI with TailwindCSS
-- 🔔 Toast notifications
-- ✅ Custom confirmation modals
-- 📱 Responsive design
+- 🎨 Interfaz moderna (Rediseñada recientemente con diseño Glassmorphism)
+- 🔔 Notificaciones dinámicas (Toast)
+- ✅ Ventanas modales de confirmación
+- 📱 Diseño totalmente responsivo
 
-## 📁 Project Structure
+## 📁 Estructura del Proyecto
 
 ```
 Bodega/
-├── client/          # React frontend (Vite)
-├── server/          # Node.js Express backend
-│   ├── models/      # Sequelize models
-│   ├── routes/      # API routes
-│   ├── middleware/  # Auth middleware
-│   ├── utils/       # Utilities (backup, audit, etc.)
-│   └── backups/     # SQLite backups
+├── client/          # Frontend en React (Vite) con TailwindCSS y diseño Glassmorphism
+├── server/          # Backend en Node.js (Express)
+│   ├── models/      # Modelos de Sequelize
+│   ├── routes/      # Rutas de la API
+│   ├── middleware/  # Middleware de autenticación
+│   ├── utils/       # Utilidades (respaldos, auditoría, etc.)
+│   └── backups/     # Respaldos de SQLite
 ```
 
-## 🔧 Configuration
+## 🔧 Configuración
 
-Edit `server/.env`:
+Edita `server/.env`:
 
 ```bash
 PORT=3001
-JWT_SECRET=your_secret_key
+JWT_SECRET=tu_clave_secreta
 
-# Auto backups
+# Respaldos automáticos
 AUTO_BACKUP_ENABLED=true
-BACKUP_SCHEDULE=0 2 * * *  # Daily at 2 AM
+BACKUP_SCHEDULE=0 2 * * *  # Diariamente a las 2 AM
 ```
 
-## 📖 Documentation
+## 📖 Documentación
 
-See `walkthrough.md` for detailed feature guide.
+Consulta `walkthrough.md` para ver la guía detallada de las funcionalidades.
 
-## 🛡️ Security
+## 🛡️ Seguridad
 
-- Passwords hashed with bcrypt
-- JWT token authentication
-- Role-based authorization
-- Complete audit logging
-- IP address tracking
+- Contraseñas encriptadas con bcrypt
+- Autenticación con token JWT
+- Autorización basada en roles
+- Registro completo de auditoría
+- Rastreo de direcciones IP
 
-## � Troubleshooting
+## 🛠️ Solución de Problemas
 
-### Port already in use
+### El puerto ya está en uso
 
 ```bash
-# Kill process on port 3001 (Windows)
+# Matar el proceso en el puerto 3001 (Windows)
 netstat -ano | findstr :3001
 taskkill /PID <PID> /F
 
-# Kill process on port 5173
+# Matar el proceso en el puerto 5173
 netstat -ano | findstr :5173
 taskkill /PID <PID> /F
 ```
 
-### Database locked
+### Base de datos bloqueada (Database locked)
 
 ```bash
-# Stop the server and delete lock files
+# Detener el servidor y borrar los archivos de bloqueo
 cd server
 del bodega.sqlite-shm
 del bodega.sqlite-wal
-node seed.js  # Reinitialize
+node seed.js  # Reinicializar
 ```
 
-### Missing JWT_SECRET error
+### Error de JWT_SECRET faltante
 
 ```bash
-# Make sure you have a .env file
+# Asegúrate de tener un archivo .env
 cd server
 copy .env.example .env
-# Edit .env and set JWT_SECRET
+# Edita el archivo .env y configura JWT_SECRET
 ```
 
-### Client won't start
+### El cliente no inicia
 
 ```bash
 cd client
@@ -168,12 +168,12 @@ npm install
 npm run dev
 ```
 
-### Import Excel errors
+### Errores al importar Excel
 
-- Ensure file has columns: SKU, Name, Description, Price (USD), Stock, Active
-- SKU and Name are required
-- Active must be "Yes" or "No"
+- Asegúrate de que el archivo tenga las columnas: SKU, Name, Description, Price (USD), Stock, Active
+- SKU y Name son obligatorios
+- Active debe ser "Yes" o "No"
 
-## �📝 License
+## 📝 Licencia
 
 MIT

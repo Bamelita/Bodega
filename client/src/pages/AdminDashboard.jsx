@@ -119,146 +119,137 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto transition-colors duration-300">
+    <div className="page active">
 
       {/* Notifications Area */}
       {notifications.length > 0 && (
-        <div className="mb-6 space-y-2">
+        <div className="mb-3 space-y-2">
           {notifications.map((note, index) => (
-            <div key={index} className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 p-4 rounded-xl flex items-center gap-3 text-yellow-800 dark:text-yellow-200 animate-in fade-in slide-in-from-top-4">
-              <AlertTriangle className="shrink-0" size={20} />
-              <p className="font-medium">{note.message}</p>
+            <div key={index} className="alert-banner alert-warning">
+              <AlertTriangle size={15} />
+              <span>{note.message}</span>
             </div>
           ))}
         </div>
       )}
 
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-800 dark:text-white">Gestión de Usuarios</h1>
-          <p className="text-slate-700 dark:text-slate-200 font-medium">Administra el acceso y facturación de tus clientes</p>
-        </div>
+      <div className="section-header mb-2">
+        <div className="section-title">Gestión de Usuarios <small>{users.length} registros</small></div>
       </div>
 
       {/* Embedded Form */}
-      <div className="bg-white/80 dark:bg-slate-800/50 backdrop-blur-lg rounded-xl shadow-lg border border-white/20 dark:border-slate-700/50 p-6 mb-8 transition-colors duration-300">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
-            {editingId ? <><Edit size={24} /> Editar Usuario</> : <><UserPlus size={24} /> Nuevo Usuario</>}
-          </h2>
+      <div className="card mb-3">
+        <div className="card-header">
+          <div className="card-title">
+            {editingId ? <><Edit size={16} /> Editar Usuario</> : <><UserPlus size={16} /> Nuevo Usuario</>}
+          </div>
           {editingId && (
-            <button onClick={resetForm} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors flex items-center gap-1">
-              <X size={18} /> Cancelar Edición
+            <button onClick={resetForm} className="btn btn-ghost btn-sm">
+              <X size={14} /> Cancelar
             </button>
           )}
         </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Usuario</label>
-              <input type="text" required className="w-full border dark:border-slate-600 rounded-lg px-3 py-2 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none"
-                value={formData.username} onChange={e => setFormData({ ...formData, username: e.target.value })} />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Contraseña {editingId && '(Dejar vacío para mantener)'}</label>
-              <input type="password" required={!editingId} className="w-full border dark:border-slate-600 rounded-lg px-3 py-2 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
-                value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })} />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nombre</label>
-              <input type="text" required className="w-full border dark:border-slate-600 rounded-lg px-3 py-2 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
-                value={formData.firstName} onChange={e => setFormData({ ...formData, firstName: e.target.value })} />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Apellido</label>
-              <input type="text" required className="w-full border dark:border-slate-600 rounded-lg px-3 py-2 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
-                value={formData.lastName} onChange={e => setFormData({ ...formData, lastName: e.target.value })} />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Cédula</label>
-              <input type="text" required className="w-full border dark:border-slate-600 rounded-lg px-3 py-2 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
-                value={formData.cedula} onChange={e => setFormData({ ...formData, cedula: e.target.value })} />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Teléfono</label>
-              <input type="text" className="w-full border dark:border-slate-600 rounded-lg px-3 py-2 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
-                value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Monto Mensual</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
-                <input type="number" className="w-full border dark:border-slate-600 rounded-lg px-3 py-2 pl-7 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
-                  value={formData.paymentAmount ?? ''} onChange={e => setFormData({ ...formData, paymentAmount: e.target.value === '' ? '' : Number(e.target.value) })} />
+        <div className="card-body">
+          <form onSubmit={handleSubmit}>
+            <div className="form-grid-3">
+              <div className="field">
+                <label>Usuario</label>
+                <input type="text" required value={formData.username} onChange={e => setFormData({ ...formData, username: e.target.value })} />
+              </div>
+              <div className="field">
+                <label>Contraseña {editingId && '(Dejar vacío para mantener)'}</label>
+                <input type="password" required={!editingId} value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })} />
+              </div>
+              <div className="field">
+                <label>Nombre</label>
+                <input type="text" required value={formData.firstName} onChange={e => setFormData({ ...formData, firstName: e.target.value })} />
+              </div>
+              <div className="field">
+                <label>Apellido</label>
+                <input type="text" required value={formData.lastName} onChange={e => setFormData({ ...formData, lastName: e.target.value })} />
+              </div>
+              <div className="field">
+                <label>Cédula</label>
+                <input type="text" required value={formData.cedula} onChange={e => setFormData({ ...formData, cedula: e.target.value })} />
+              </div>
+              <div className="field">
+                <label>Teléfono</label>
+                <input type="text" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
+              </div>
+              <div className="field">
+                <label>Monto Mensual</label>
+                <input type="number" value={formData.paymentAmount ?? ''} onChange={e => setFormData({ ...formData, paymentAmount: e.target.value === '' ? '' : Number(e.target.value) })} />
+              </div>
+              <div className="field">
+                <label>Fecha de Corte</label>
+                <input type="date" value={formData.cutoffDate} onChange={e => setFormData({ ...formData, cutoffDate: e.target.value })} />
               </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Fecha de Corte</label>
-              <input type="date" className="w-full border dark:border-slate-600 rounded-lg px-3 py-2 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
-                value={formData.cutoffDate} onChange={e => setFormData({ ...formData, cutoffDate: e.target.value })} />
-            </div>
-          </div>
 
-          <div className="flex justify-end pt-4">
-            {editingId && (
-              <button type="button" onClick={resetForm} className="mr-3 px-4 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">Cancelar</button>
-            )}
-            <button type="submit" className="px-6 py-2 bg-primary text-white rounded-lg hover:brightness-90 font-bold shadow-lg shadow-primary/20 transition-colors flex items-center gap-2">
-              <Save size={20} />
-              {editingId ? 'Actualizar Usuario' : 'Guardar Usuario'}
-            </button>
-          </div>
-        </form>
+            <div className="flex justify-end pt-4" style={{ marginTop: '1rem' }}>
+              {editingId && (
+                <button type="button" onClick={resetForm} className="btn btn-ghost" style={{ marginRight: '10px' }}>Cancelar</button>
+              )}
+              <button type="submit" className="btn btn-primary">
+                <Save size={14} />
+                {editingId ? 'Actualizar Usuario' : 'Guardar Usuario'}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
 
-      <div className="bg-white/80 dark:bg-slate-800/50 backdrop-blur-lg rounded-xl shadow-lg border border-white/20 dark:border-slate-700/50 overflow-hidden transition-colors duration-300">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
+      <div className="card">
+        <div className="table-wrap">
+          <table>
+            <thead>
               <tr>
-                <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-400">Usuario</th>
-                <th className="hidden md:table-cell px-6 py-4 font-semibold text-slate-600 dark:text-slate-400">Nombre Completo</th>
-                <th className="hidden lg:table-cell px-6 py-4 font-semibold text-slate-600 dark:text-slate-400">Contacto</th>
-                <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-400">Plan</th>
-                <th className="hidden sm:table-cell px-6 py-4 font-semibold text-slate-600 dark:text-slate-400">Estado</th>
-                <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-400 text-right">Acciones</th>
+                <th>Usuario</th>
+                <th>Nombre Completo</th>
+                <th>Contacto</th>
+                <th>Plan</th>
+                <th>Estado</th>
+                <th>Acciones</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+            <tbody>
               {users.map((user) => (
-                <tr key={user.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="font-medium text-slate-900 dark:text-white">{user.username}</div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">Pass: {user.password}</div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400 uppercase">{user.role}</div>
-                    <div className="md:hidden text-xs text-slate-500 mt-1">{user.firstName} {user.lastName}</div>
-                  </td>
-                  <td className="hidden md:table-cell px-6 py-4">
-                    <div className="text-slate-900 dark:text-white">{user.firstName} {user.lastName}</div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400">{user.cedula}</div>
-                  </td>
-                  <td className="hidden lg:table-cell px-6 py-4">
-                    <div className="text-sm text-slate-600 dark:text-slate-300">{user.email}</div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400">{user.phone}</div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm font-bold text-slate-700 dark:text-slate-200">${user.paymentAmount}</div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400">
-                      Corte: {user.cutoffDate ? new Date(user.cutoffDate).toLocaleDateString() : '-'}
+                <tr key={user.id}>
+                  <td>
+                    <div className="td-product">
+                      <div className="td-product-icon">{(user.username || '?')[0].toUpperCase()}</div>
+                      <div>
+                        <div className="td-name">{user.username}</div>
+                        <div className="td-sku uppercase">{user.role}</div>
+                      </div>
                     </div>
                   </td>
-                  <td className="hidden sm:table-cell px-6 py-4">
-                    <span className={`px-2 py-1 rounded-full text-xs font-bold ${user.isActive ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}`}>
+                  <td>
+                    <div className="td-name">{user.firstName} {user.lastName}</div>
+                    <div className="td-sku">{user.cedula}</div>
+                  </td>
+                  <td>
+                    <div className="td-name">{user.email || '—'}</div>
+                    <div className="td-sku">{user.phone || '—'}</div>
+                  </td>
+                  <td>
+                    <div className="mono fw-8">${user.paymentAmount}</div>
+                    <div className="td-sku">Corte: {user.cutoffDate ? new Date(user.cutoffDate).toLocaleDateString() : '-'}</div>
+                  </td>
+                  <td>
+                    <span className={`badge ${user.isActive ? 'badge-active' : 'badge-inactive'}`}>
                       {user.isActive ? 'Activo' : 'Suspendido'}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-right space-x-2">
-                    <button onClick={() => handleEdit(user)} className="p-1 text-slate-400 hover:text-primary dark:hover:text-blue-400 transition-colors" title="Editar">
-                      <Edit size={18} />
-                    </button>
-                    <button onClick={() => handleDelete(user.id)} className="p-1 text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors" title="Eliminar">
-                      <Trash2 size={18} />
-                    </button>
+                  <td>
+                    <div className="td-actions">
+                      <button onClick={() => handleEdit(user)} className="action-btn edit" title="Editar">
+                        <Edit size={13} />
+                      </button>
+                      <button onClick={() => handleDelete(user.id)} className="action-btn del" title="Eliminar">
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -266,8 +257,6 @@ const AdminDashboard = () => {
           </table>
         </div>
       </div>
-
-
     </div>
   );
 };
