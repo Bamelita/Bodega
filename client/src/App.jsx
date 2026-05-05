@@ -43,13 +43,7 @@ const App = () => {
 
                                 {/* Admin Routes */}
                                 <Route path="/admin" element={<AdminDashboard />} />
-                                <Route path="/admin/inventory" element={<Inventory />} />
-                                <Route path="/admin/sales" element={<Sales />} />
-                                <Route path="/admin/clients" element={<Clients />} />
-                                <Route path="/admin/reports" element={<Reports />} />
-                                <Route path="/admin/reports" element={<Reports />} />
                                 <Route path="/admin/settings" element={<Settings />} />
-
                                 <Route path="/admin/profile" element={<AdminProfile />} />
                                 <Route path="/admin/security" element={<AdminSecurity />} />
                                 <Route path="/admin/billing" element={<AdminBilling />} />
@@ -63,6 +57,7 @@ const App = () => {
                                 <Route path="/user/sales" element={<Sales />} />
                                 <Route path="/user/clients" element={<Clients />} />
                                 <Route path="/user/reports" element={<Reports />} />
+                                <Route path="/user/backups" element={<AdminBackups />} />
                             </Route>
 
                             {/* Catch all */}

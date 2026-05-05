@@ -58,79 +58,94 @@ const AdminSecurity = () => {
     const buttonStyle = "flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-bold shadow-lg shadow-blue-600/20 transition-all hover:scale-[1.02] active:scale-[0.98]";
 
     return (
-        <div className="p-8 max-w-4xl mx-auto animate-fade-in">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-slate-800 dark:text-white flex items-center gap-3">
-                    <Shield className="text-blue-600" size={32} /> Seguridad
-                </h1>
-                <p className="text-slate-500 dark:text-slate-400 mt-2">Protege tu cuenta y gestiona tus sesiones activas.</p>
+        <div className="page active">
+            <div className="section-header mb-3">
+                <div className="section-title flex items-center gap-2">
+                    <Shield className="text-[var(--purple)]" size={20} /> Seguridad
+                </div>
             </div>
+            <p className="text-sm text-[var(--muted)] mb-4">Protege tu cuenta y gestiona tus sesiones activas.</p>
 
             {status.message && (
-                <div className={`mb-6 p-4 rounded-xl flex items-center gap-3 ${status.type === 'success' ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400'}`}>
-                    {status.type === 'success' ? <CheckCircle size={20} /> : <AlertTriangle size={20} />}
-                    <p className="font-medium">{status.message}</p>
+                <div className={`alert-banner mb-6 ${status.type === 'success' ? '!bg-[var(--success-bg)] !text-[var(--success)] !border-[var(--success)]' : 'alert-danger'}`}>
+                    <div className="flex items-center gap-2">
+                        {status.type === 'success' ? <CheckCircle size={16} /> : <AlertTriangle size={16} />}
+                        <span>{status.message}</span>
+                    </div>
                 </div>
             )}
 
-            <div className="space-y-8">
+            <div className="space-y-4">
                 {/* Change Password */}
-                <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
-                    <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">Cambiar Contraseña</h3>
-                    <form onSubmit={changePassword} className="space-y-4 max-w-md">
-                        <div>
-                            <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 block">Usuario</label>
-                            <select
-                                className={inputStyle}
-                                value={selectedUserId}
-                                onChange={(e) => setSelectedUserId(e.target.value)}
-                            >
-                                <option value="me">Mi Cuenta ({currentUser?.username})</option>
-                                <optgroup label="Otros Usuarios">
-                                    {users.filter(u => u.id !== currentUser?.id).map(u => (
-                                        <option key={u.id} value={u.id}>{u.username} - {u.firstName} {u.lastName}</option>
-                                    ))}
-                                </optgroup>
-                            </select>
-                        </div>
+                <div className="card">
+                    <div className="card-header">
+                        <div className="card-title">Cambiar Contraseña</div>
+                    </div>
+                    <div className="card-body p-6">
+                        <form onSubmit={changePassword} className="space-y-4 max-w-md">
+                            <div className="field">
+                                <label>Usuario</label>
+                                <select
+                                    value={selectedUserId}
+                                    onChange={(e) => setSelectedUserId(e.target.value)}
+                                >
+                                    <option value="me">Mi Cuenta ({currentUser?.username})</option>
+                                    <optgroup label="Otros Usuarios">
+                                        {users.filter(u => u.id !== currentUser?.id).map(u => (
+                                            <option key={u.id} value={u.id}>{u.username} - {u.firstName} {u.lastName}</option>
+                                        ))}
+                                    </optgroup>
+                                </select>
+                            </div>
 
-                        {selectedUserId === 'me' && (
-                            <input type="password" placeholder="Contraseña actual (Opcional en Demo)" className={inputStyle} value={pass.current} onChange={e => setPass({ ...pass, current: e.target.value })} />
-                        )}
+                            {selectedUserId === 'me' && (
+                                <div className="field">
+                                    <input type="password" placeholder="Contraseña actual (Opcional en Demo)" value={pass.current} onChange={e => setPass({ ...pass, current: e.target.value })} />
+                                </div>
+                            )}
 
-                        <input type="password" placeholder="Nueva contraseña" required className={inputStyle} value={pass.new} onChange={e => setPass({ ...pass, new: e.target.value })} />
-                        <input type="password" placeholder="Confirmar nueva contraseña" required className={inputStyle} value={pass.confirm} onChange={e => setPass({ ...pass, confirm: e.target.value })} />
-                        <button type="submit" className={buttonStyle}>Actualizar Contraseña</button>
-                    </form>
+                            <div className="field">
+                                <input type="password" placeholder="Nueva contraseña" required value={pass.new} onChange={e => setPass({ ...pass, new: e.target.value })} />
+                            </div>
+                            <div className="field">
+                                <input type="password" placeholder="Confirmar nueva contraseña" required value={pass.confirm} onChange={e => setPass({ ...pass, confirm: e.target.value })} />
+                            </div>
+                            <div className="pt-2">
+                                <button type="submit" className="btn btn-primary">Actualizar Contraseña</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
 
                 {/* 2FA Preview */}
-                <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 flex justify-between items-center">
-                    <div>
-                        <h3 className="text-lg font-semibold text-slate-800 dark:text-white">Verificación en dos pasos (2FA)</h3>
-                        <p className="text-sm text-slate-500">Añade una capa extra de seguridad a tu cuenta.</p>
+                <div className="card">
+                    <div className="card-body p-6 flex justify-between items-center">
+                        <div>
+                            <h3 className="font-semibold text-lg">Verificación en dos pasos (2FA)</h3>
+                            <p className="text-sm text-[var(--muted)] mt-1">Añade una capa extra de seguridad a tu cuenta.</p>
+                        </div>
+                        <button className="btn btn-ghost border border-[var(--glass-border)]">Configurar</button>
                     </div>
-                    <button className="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">Configurar</button>
                 </div>
 
                 {/* Active Sessions */}
-                <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
-                    <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-lg font-semibold text-slate-800 dark:text-white">Sesiones Activas</h3>
-                        <button className="text-red-500 text-sm hover:underline">Cerrar todas las sesiones</button>
+                <div className="card">
+                    <div className="card-header flex justify-between items-center">
+                        <div className="card-title">Sesiones Activas</div>
+                        <button className="text-[var(--danger)] text-sm hover:underline bg-transparent border-0 cursor-pointer">Cerrar todas las sesiones</button>
                     </div>
-                    <div className="space-y-4">
+                    <div className="card-body p-6 space-y-2">
                         {sessions.map(s => (
-                            <div key={s.id} className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-900/50">
+                            <div key={s.id} className="flex items-center justify-between p-3 rounded-lg bg-[var(--glass-white)]">
                                 <div className="flex items-center gap-3">
-                                    {s.device.includes('iPhone') || s.device.includes('Mobile') ? <Smartphone size={20} className="text-slate-400" /> : <Monitor size={20} className="text-slate-400" />}
+                                    {s.device.includes('iPhone') || s.device.includes('Mobile') ? <Smartphone size={20} className="text-[var(--muted)]" /> : <Monitor size={20} className="text-[var(--muted)]" />}
                                     <div>
-                                        <p className="font-medium text-slate-800 dark:text-white">{s.device}</p>
-                                        <p className="text-xs text-slate-500">{s.ip} • {s.location}</p>
+                                        <p className="font-medium">{s.device}</p>
+                                        <p className="text-xs text-[var(--muted)]">{s.ip} • {s.location}</p>
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    {s.current ? <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">Actual</span> : <span className="text-xs text-slate-500">Activo: {new Date(s.lastActive).toLocaleDateString()}</span>}
+                                    {s.current ? <span className="badge badge-active">Actual</span> : <span className="text-xs text-[var(--muted)]">Activo: {new Date(s.lastActive).toLocaleDateString()}</span>}
                                 </div>
                             </div>
                         ))}

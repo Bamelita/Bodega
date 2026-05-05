@@ -77,146 +77,143 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-transparent transition-colors duration-300 relative">
+    <div className="min-h-screen w-full flex items-center justify-center bg-transparent transition-colors duration-300 relative">
       {/* Theme Toggle Button */}
       <button
         onClick={toggleTheme}
-        className="absolute top-6 right-6 p-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 shadow-lg hover:scale-110 transition-all border dark:border-slate-700"
+        className="absolute top-6 right-6 p-2 rounded-full card text-ink2 hover:scale-110 transition-all z-10 flex items-center justify-center border border-[var(--glass-border)] bg-[var(--glass-white)]"
       >
         {darkMode ? <Sun size={24} /> : <Moon size={24} />}
       </button>
 
-      <div className="w-full max-w-md p-4">
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden transition-colors duration-300 dark:border dark:border-slate-700">
-          <div className="p-8 pb-6">
+      <div className="w-full max-w-md p-4 flex justify-center">
+        <div className="card w-full">
+          <div className="card-body">
             <div className="flex flex-col items-center mb-6">
-              <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4">
-                <BrandIcon size={64} />
+              <div className="brand-icon mb-4" style={{ width: '64px', height: '64px', borderRadius: '18px' }}>
+                <BrandIcon size={40} />
               </div>
-              <h1 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">Invexis</h1>
-              <p className="text-slate-500 dark:text-slate-400 text-sm">
+              <h1 className="brand-name text-3xl mb-1">Invexis</h1>
+              <p className="text-[var(--muted)] text-sm font-semibold text-center">
                 {isResetting ? (resetStep === 1 ? 'Recuperar Contraseña' : 'Establecer Nueva Contraseña') : 'Ingresa tus credenciales para acceder'}
               </p>
             </div>
 
             {error && (
-              <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 rounded-lg mb-6 text-sm text-center border border-red-100 dark:border-red-900/30">
-                {error}
+              <div className="alert-banner alert-danger mb-6">
+                <div className="flex-1 text-center">{error}</div>
               </div>
             )}
 
             {resetSuccess && (
-              <div className="bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 p-3 rounded-lg mb-6 text-sm text-center border border-green-100 dark:border-green-900/30">
-                Contraseña actualizada exitosamente. Redirigiendo al login...
+              <div className="alert-banner alert-warning mb-6 !bg-[var(--success-bg)] !text-[var(--success)] !border-[var(--success)]">
+                <div className="flex-1 text-center">Contraseña actualizada exitosamente. Redirigiendo al login...</div>
               </div>
             )}
 
             {!isResetting ? (
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div className="space-y-1.5">
-                  <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">Usuario</label>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="field">
+                  <label>Usuario</label>
                   <div className="relative group">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" size={20} />
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted)] group-focus-within:text-[var(--purple)] transition-colors" size={18} />
                     <input
                       type="text"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl py-3 pl-10 pr-4 text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                       placeholder="Ingrese su usuario"
+                      style={{ paddingLeft: '2.5rem' }}
                     />
                   </div>
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">Contraseña</label>
+                <div className="field">
+                  <label>Contraseña</label>
                   <div className="relative group">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" size={20} />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted)] group-focus-within:text-[var(--purple)] transition-colors" size={18} />
                     <input
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl py-3 pl-10 pr-10 text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                       placeholder="••••••••"
+                      style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted)] hover:text-[var(--ink)] transition-colors"
                     >
-                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40 flex items-center justify-center gap-2 mt-2"
+                  className="btn btn-primary w-full justify-center py-3 mt-4 text-[0.85rem]"
                 >
-                  Iniciar Sesión <ArrowRight size={20} />
+                  Iniciar Sesión <ArrowRight size={18} />
                 </button>
 
                 <div className="text-center mt-4">
                   <button
                     type="button"
                     onClick={() => setIsResetting(true)}
-                    className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:underline"
+                    className="text-sm text-[var(--purple)] hover:text-[var(--pink)] transition-colors hover:underline font-bold"
                   >
                     ¿Olvidaste tu contraseña?
                   </button>
                 </div>
               </form>
             ) : (
-              <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-300">
+              <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
                 {resetStep === 1 ? (
-                  <form onSubmit={handleVerifyEmail} className="space-y-5">
-                    <div className="space-y-1.5">
-                      <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">Correo Electrónico</label>
+                  <form onSubmit={handleVerifyEmail} className="space-y-4">
+                    <div className="field">
+                      <label>Correo Electrónico</label>
                       <input
                         type="email"
                         value={resetEmail}
                         onChange={(e) => setResetEmail(e.target.value)}
-                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl py-3 px-4 text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                         placeholder="ejemplo@correo.com"
                         required
                       />
-                      <p className="text-xs text-slate-500 dark:text-slate-400 ml-1">
+                      <p className="text-xs text-[var(--muted)] mt-1">
                         Ingrese el correo asociado a su cuenta para verificar.
                       </p>
                     </div>
                     <button
                       type="submit"
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40"
+                      className="btn btn-primary w-full justify-center py-3 mt-2 text-[0.85rem]"
                     >
                       Verificar Correo
                     </button>
                   </form>
                 ) : (
-                  <form onSubmit={handleResetPassword} className="space-y-5">
-                    <div className="space-y-1.5">
-                      <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">Nueva Contraseña</label>
+                  <form onSubmit={handleResetPassword} className="space-y-4">
+                    <div className="field">
+                      <label>Nueva Contraseña</label>
                       <input
                         type="password"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
-                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl py-3 px-4 text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                         placeholder="Nueva contraseña"
                         required
                       />
                     </div>
-                    <div className="space-y-1.5">
-                      <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">Confirmar Contraseña</label>
+                    <div className="field">
+                      <label>Confirmar Contraseña</label>
                       <input
                         type="password"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl py-3 px-4 text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                         placeholder="Confirmar contraseña"
                         required
                       />
                     </div>
                     <button
                       type="submit"
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40"
+                      className="btn btn-primary w-full justify-center py-3 mt-2 text-[0.85rem]"
                     >
                       Restablecer Contraseña
                     </button>
@@ -229,7 +226,7 @@ const Login = () => {
                     setResetStep(1);
                     setError('');
                   }}
-                  className="w-full text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 text-sm font-medium transition-colors"
+                  className="w-full text-[var(--muted)] hover:text-[var(--ink)] text-sm font-bold transition-colors mt-2"
                 >
                   Volver al inicio de sesión
                 </button>

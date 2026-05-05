@@ -66,27 +66,26 @@ Accede a la aplicación en: `http://localhost:5173`
 
 ### Principales
 
-- 🔐 Autenticación mediante JWT
-- 👥 Acceso basado en roles (Administrador/Usuario)
-- 📦 Gestión de productos (CRUD completo)
-- 📊 Control de inventario con precios en USD/VES
-- 📈 Registro de movimientos de ventas y compras
-- 💰 Seguimiento de pagos
+- 🎨 **Diseño Glassmorphism**: Interfaz moderna, dinámica y completamente rediseñada bajo el estilo "vidrio esmerilado" 100% responsiva (Modo Claro/Oscuro).
+- 🔐 **Seguridad y Control**: Autenticación mediante JWT con separación arquitectónica estricta (RBAC) entre rutas de Administrador y Usuario.
+- 📊 **Panel Estadístico**: Gráficos interactivos y KPIs visuales en tiempo real.
+- 📄 **Exportación/Importación**: Capacidad nativa para exportar a PDF y Excel (CSV) e importación masiva de datos.
 
-### Funciones de Administrador
+### 👤 Módulo de Usuario (Operativo)
 
-- 👤 Gestión de usuarios
-- 💾 Respaldos manuales y automáticos
-- 🗑️ Retención automática de respaldos
-- 📋 Registro de auditoría (todas las acciones rastreadas)
-- 📄 Importación y exportación a Excel
+- **Inventario**: Control total (CRUD) de productos, stock y gestión multi-moneda.
+- **Ventas**: Registro interactivo de una o múltiples ventas con generación de recibos.
+- **Clientes**: Directorio para el control y seguimiento de la base de datos de clientes.
+- **Reportes**: Análisis visual de la rentabilidad, ventas recientes e ingresos generados.
+- **Respaldos Propios**: Opciones para generar y descargar copias de seguridad de sus datos personales.
 
-### Interfaz (UX/UI)
+### 🛡️ Módulo de Administrador (Supervisión)
 
-- 🎨 Interfaz moderna (Rediseñada recientemente con diseño Glassmorphism)
-- 🔔 Notificaciones dinámicas (Toast)
-- ✅ Ventanas modales de confirmación
-- 📱 Diseño totalmente responsivo
+- **Control de Usuarios**: Creación, modificación (cambio de nombres/contraseñas), suspensión y eliminación de usuarios del sistema.
+- **Planes y Facturación**: Gestión de métodos de pago, montos, registro de pagos y control de fechas de corte para cada suscriptor.
+- **Respaldos Globales**: Generación y retención de respaldos completos (manual y automático).
+- **Auditoría del Sistema**: Historial detallado de cada acción, evento de seguridad e IP registrada.
+- **Configuración y Seguridad**: Gestión avanzada de sesiones, límites de base de datos, y notificaciones.
 
 ## 📁 Estructura del Proyecto
 

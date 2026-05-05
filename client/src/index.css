@@ -53,6 +53,36 @@
     --transition: all .22s cubic-bezier(.4,0,.2,1);
   }
 
+  html.dark {
+    --grad-bg: radial-gradient(at 82% 39%, rgba(0,85,255,0.4) 0%, transparent 100%),
+               radial-gradient(at 6% 35%, rgba(0,195,255,0.4) 0%, transparent 100%),
+               radial-gradient(at 72% 34%, rgba(0,40,150,0.5) 0%, transparent 100%),
+               radial-gradient(at 90% 48%, rgba(0,150,255,0.3) 0%, transparent 100%),
+               radial-gradient(at 14% 17%, rgba(0,100,250,0.4) 0%, transparent 100%),
+               radial-gradient(at 6% 55%, rgba(0,60,200,0.4) 0%, transparent 100%);
+    --bg-base: #020617; /* Slate 950 */
+
+    /* Glass surfaces - Darker with blue tint */
+    --glass-white:  rgba(15, 23, 42, 0.65); /* Slate 900 */
+    --glass-mid:    rgba(15, 23, 42, 0.45);
+    --glass-light:  rgba(15, 23, 42, 0.30);
+    --glass-border: rgba(56, 189, 248, 0.2); /* Sky 400 */
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    --glass-shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.6);
+
+    /* Palette - adapt to blue */
+    --purple: #3b82f6; /* Blue 500 */
+    --purple-light: #60a5fa; /* Blue 400 */
+    --pink:   #0284c7; /* Sky 600 / Azul cielo oscuro */
+    --pink-light: #38bdf8; /* Sky 400 */
+
+    /* Text */
+    --ink:    #f8fafc; /* Slate 50 */
+    --ink2:   #cbd5e1; /* Slate 300 */
+    --muted:  #94a3b8; /* Slate 400 */
+    --white:  #ffffff;
+  }
+
   html { scroll-behavior: smooth; }
 
   body {
@@ -635,9 +665,13 @@ tbody td {
   border-radius: var(--radius-sm);
   font-size: .8rem; font-weight: 600;
   margin-bottom: .75rem;
+  background: var(--glass-white);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
-.alert-warning { background: var(--warning-bg); color: #92400e; border: 1.5px solid rgba(245,158,11,.2); }
-.alert-danger  { background: var(--danger-bg);  color: #991b1b; border: 1.5px solid rgba(239,68,68,.2);  }
+.alert-warning { color: #b45309; border: 1px solid rgba(245,158,11,.3); border-left: 4px solid var(--warning); }
+.alert-danger  { color: #b91c1c; border: 1px solid rgba(239,68,68,.3);  border-left: 4px solid var(--danger); }
 .alert-banner svg { width: 15px; height: 15px; flex-shrink: 0; }
 
 /* ─── TOAST ──────────────────────────────────────────── */
@@ -724,4 +758,47 @@ tbody td {
 @media(max-width:800px) {
   .sidebar { transform: translateX(-100%); }
   .main { margin-left: 0; }
+}
+
+/* ─── DARK THEME OVERRIDES ────────────────────────────── */
+html.dark .sidebar,
+html.dark .topbar,
+html.dark .modal,
+html.dark .search-wrap,
+html.dark .icon-pill,
+html.dark .toast {
+  background: var(--glass-white);
+  border-color: var(--glass-border);
+}
+html.dark .brand { border-bottom-color: var(--glass-border); }
+html.dark .sidebar-footer { border-top-color: var(--glass-border); }
+html.dark .nav-item:hover { background: var(--glass-mid); border-color: var(--glass-border); }
+html.dark .nav-item.active { background: var(--glass-mid); border-color: var(--purple); box-shadow: 0 4px 16px rgba(56,189,248,.1); color: var(--pink-light); }
+html.dark .nav-item.active svg { color: var(--pink-light); }
+html.dark .user-card { background: var(--glass-mid); border-color: var(--glass-border); }
+html.dark .user-card:hover { background: var(--glass-white); }
+html.dark .search-wrap:focus-within { border-color: var(--purple); background: var(--glass-white); }
+html.dark .icon-pill:hover { background: var(--glass-mid); }
+html.dark thead th { background: var(--glass-light); border-bottom-color: var(--glass-border); }
+html.dark tbody tr { border-bottom-color: var(--glass-border); }
+html.dark tbody tr:hover { background: var(--glass-light); }
+html.dark .td-product-icon, html.dark .audit-dot, html.dark .action-btn { background: var(--glass-mid); border-color: var(--glass-border); color: var(--ink2); }
+html.dark .field input, html.dark .field select, html.dark .field textarea { background: var(--glass-light); border-color: var(--glass-border); color: var(--ink); }
+html.dark .field input:focus, html.dark .field select:focus, html.dark .field textarea:focus { background: var(--glass-mid); border-color: var(--purple); }
+html.dark .btn-ghost { background: var(--glass-mid); border-color: var(--glass-border); color: var(--ink); }
+html.dark .btn-ghost:hover { background: var(--glass-white); }
+html.dark .divider { background: var(--glass-border); }
+html.dark .audit-item { border-bottom-color: var(--glass-border); }
+
+html.dark .alert-warning {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fde68a;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  border-left: 4px solid var(--warning);
+}
+html.dark .alert-danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fecaca;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-left: 4px solid var(--danger);
 }

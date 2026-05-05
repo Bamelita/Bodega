@@ -340,9 +340,7 @@ api.interceptors.request.use(async (config) => {
   // Detect Netlify environment
   const isNetlify =
     typeof window !== "undefined" &&
-    (/netlify\.app$/.test(window.location.hostname) ||
-      window.location.hostname === "localhost" ||
-      window.location.hostname === "127.0.0.1");
+    /netlify\.app$/.test(window.location.hostname);
 
   // If on Netlify, hijack the request and return mock data
   if (isNetlify) {

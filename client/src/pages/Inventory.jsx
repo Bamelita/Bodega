@@ -187,36 +187,38 @@ const Inventory = () => {
   };
 
   return (
-    <div className="p-8 lg:pt-20">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-slate-800 dark:text-white">Inventario</h1>
-        <div className="flex items-center gap-2">
-          <button onClick={openNew} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2">
-            <Plus size={20} /> Nuevo Producto
+    <div className="page active">
+      <div className="section-header mb-3">
+        <div className="section-title">Inventario</div>
+        <div className="flex flex-wrap gap-2">
+          <button onClick={openNew} className="btn btn-primary">
+            <Plus size={16} /> Nuevo Producto
           </button>
-          <label className="bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white px-4 py-2 rounded-lg flex items-center gap-2 cursor-pointer">
-            <UploadCloud size={18} /> Importar Excel (CSV)
+          <label className="btn btn-ghost cursor-pointer">
+            <UploadCloud size={16} /> Importar
             <input type="file" accept=".csv,text/csv" className="hidden" onChange={importCSV} />
           </label>
-          <button onClick={exportCSV} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2">
-            <FileSpreadsheet size={18} /> Exportar Excel
+          <button onClick={exportCSV} className="btn btn-ghost">
+            <FileSpreadsheet size={16} /> Exportar
           </button>
         </div>
       </div>
 
-      {message && <div className="mb-4 text-sm text-slate-700 dark:text-slate-200">{message}</div>}
+      {message && <div className="alert-banner alert-warning mb-3">{message}</div>}
 
-      <div className="bg-white/80 dark:bg-slate-800/50 backdrop-blur-lg rounded-xl shadow-lg border border-white/20 dark:border-slate-700/50 p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Search size={18} className="text-slate-500" />
-          <input
-            placeholder="Buscar por nombre o categoría"
-            className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-slate-800 dark:text-white"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+      <div className="card">
+        <div className="card-header flex-col sm:flex-row items-start sm:items-center gap-3">
+          <div className="flex items-center gap-2 flex-1 w-full bg-[var(--glass-light)] px-3 py-1.5 rounded border border-[var(--glass-border)]">
+            <Search size={16} className="text-[var(--muted)]" />
+            <input
+              placeholder="Buscar por nombre o categoría"
+              className="bg-transparent border-none outline-none text-sm w-full"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
           <select
-            className="rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-slate-800 dark:text-white"
+            className="bg-[var(--glass-light)] border border-[var(--glass-border)] rounded px-3 py-1.5 text-sm outline-none"
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
           >
@@ -227,160 +229,160 @@ const Inventory = () => {
           </select>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm">
+        <div className="table-wrap">
+          <table>
             <thead>
-              <tr className="text-left text-slate-600 dark:text-slate-300">
-                <th className="px-3 py-2">Foto</th>
-                <th className="px-3 py-2">Nombre</th>
-                <th className="px-3 py-2">Categoría</th>
-                <th className="px-3 py-2">Precio</th>
-                <th className="px-3 py-2">Costo</th>
-                <th className="px-3 py-2">Stock</th>
-                <th className="px-3 py-2">Caducidad</th>
-                <th className="px-3 py-2">Acciones</th>
+              <tr>
+                <th>Foto</th>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Precio</th>
+                <th>Costo</th>
+                <th>Stock</th>
+                <th>Caducidad</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map(p => (
-                <tr key={p.id} className="border-t border-slate-100 dark:border-slate-700">
-                  <td className="px-3 py-2">
+                <tr key={p.id}>
+                  <td>
                     {p.photoData ? (
-                      <img src={p.photoData} alt={p.name} className="w-10 h-10 object-cover rounded" />
+                      <img src={p.photoData} alt={p.name} className="w-10 h-10 object-cover rounded shadow-sm" />
                     ) : (
-                      <ImageIcon className="text-slate-400" size={24} />
+                      <div className="w-10 h-10 bg-[var(--glass-light)] rounded flex items-center justify-center text-[var(--muted)]">
+                        <ImageIcon size={20} />
+                      </div>
                     )}
                   </td>
-                  <td className="px-3 py-2 text-slate-700 dark:text-slate-200">{p.name}</td>
-                  <td className="px-3 py-2 text-slate-700 dark:text-slate-200">{p.category || '-'}</td>
-                  <td className="px-3 py-2 text-slate-700 dark:text-slate-200">${p.price?.toFixed(2)}</td>
-                  <td className="px-3 py-2 text-slate-700 dark:text-slate-200">${(p.cost ?? 0).toFixed(2)}</td>
-                  <td className="px-3 py-2 text-slate-700 dark:text-slate-200">{p.stock}</td>
-                  <td className="px-3 py-2 text-slate-700 dark:text-slate-200">{p.expirationDate || '-'}</td>
-                  <td className="px-3 py-2">
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => openEdit(p)}
-                        className="inline-flex items-center gap-1 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white px-3 py-1 rounded"
-                      >
-                        <Edit size={14} /> Editar
+                  <td className="fw-8">{p.name}</td>
+                  <td>{p.category || '-'}</td>
+                  <td className="mono fw-8">${p.price?.toFixed(2)}</td>
+                  <td className="mono">${(p.cost ?? 0).toFixed(2)}</td>
+                  <td>
+                    <span className={`badge ${p.stock <= (p.minStock || 0) ? 'badge-out' : 'badge-low'}`}>
+                      {p.stock}
+                    </span>
+                  </td>
+                  <td>{p.expirationDate || '-'}</td>
+                  <td>
+                    <div className="td-actions">
+                      <button onClick={() => openEdit(p)} className="action-btn edit" title="Editar">
+                        <Edit size={14} />
                       </button>
-                      <button
-                        onClick={() => deleteProduct(p)}
-                        className="inline-flex items-center gap-1 bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
-                      >
-                        <Trash2 size={14} /> Eliminar
+                      <button onClick={() => deleteProduct(p)} className="action-btn del" title="Eliminar">
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </td>
                 </tr>
               ))}
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan="8" className="text-center py-8 text-[var(--muted)]">No se encontraron productos</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
       </div>
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4">
-          <div className="w-full max-w-lg bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-xl shadow-2xl border border-white/20 dark:border-slate-700/50 p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold text-slate-800 dark:text-white">{form.id ? 'Editar producto' : 'Nuevo producto'}</h2>
-              <button onClick={closeForm} className="text-slate-600 dark:text-slate-300">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="card max-w-lg w-full animate-fade-in border-none shadow-2xl">
+            <div className="card-header">
+              <h2 className="card-title text-lg">{form.id ? 'Editar producto' : 'Nuevo producto'}</h2>
+              <button onClick={closeForm} className="text-[var(--muted)] hover:text-[var(--ink)] dark:hover:text-white transition-colors">
                 <X size={20} />
               </button>
             </div>
-            <form onSubmit={submitForm} className="space-y-3">
-              <div>
-                <label className="block text-sm text-slate-600 dark:text-slate-300 mb-1">Nombre</label>
-                <input
-                  value={form.name}
-                  onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
-                  className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-slate-800 dark:text-white"
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm text-slate-600 dark:text-slate-300 mb-1">Categoría</label>
+            <div className="card-body">
+              <form onSubmit={submitForm} className="space-y-4">
+                <div className="field">
+                  <label>Nombre</label>
                   <input
-                    value={form.category}
-                    onChange={(e) => setForm(f => ({ ...f, category: e.target.value }))}
-                    className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-slate-800 dark:text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-slate-600 dark:text-slate-300 mb-1">Precio</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={form.price}
-                    onChange={(e) => setForm(f => ({ ...f, price: e.target.value }))}
-                    className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-slate-800 dark:text-white"
+                    value={form.name}
+                    onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
                     required
                   />
                 </div>
-              </div>
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-sm text-slate-600 dark:text-slate-300 mb-1">Costo</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={form.cost}
-                    onChange={(e) => setForm(f => ({ ...f, cost: e.target.value }))}
-                    className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-slate-800 dark:text-white"
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="field">
+                    <label>Categoría</label>
+                    <input
+                      value={form.category}
+                      onChange={(e) => setForm(f => ({ ...f, category: e.target.value }))}
+                    />
+                  </div>
+                  <div className="field">
+                    <label>Precio</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={form.price}
+                      onChange={(e) => setForm(f => ({ ...f, price: e.target.value }))}
+                      required
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm text-slate-600 dark:text-slate-300 mb-1">Stock</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={form.stock}
-                    onChange={(e) => setForm(f => ({ ...f, stock: e.target.value }))}
-                    className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-slate-800 dark:text-white"
-                  />
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="field">
+                    <label>Costo</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={form.cost}
+                      onChange={(e) => setForm(f => ({ ...f, cost: e.target.value }))}
+                    />
+                  </div>
+                  <div className="field">
+                    <label>Stock</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={form.stock}
+                      onChange={(e) => setForm(f => ({ ...f, stock: e.target.value }))}
+                    />
+                  </div>
+                  <div className="field">
+                    <label>Stock mínimo</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={form.minStock}
+                      onChange={(e) => setForm(f => ({ ...f, minStock: e.target.value }))}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm text-slate-600 dark:text-slate-300 mb-1">Stock mínimo</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={form.minStock}
-                    onChange={(e) => setForm(f => ({ ...f, minStock: e.target.value }))}
-                    className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-slate-800 dark:text-white"
-                  />
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="field">
+                    <label>Caducidad</label>
+                    <input
+                      type="date"
+                      value={form.expirationDate}
+                      onChange={(e) => setForm(f => ({ ...f, expirationDate: e.target.value }))}
+                    />
+                  </div>
                 </div>
-              </div>
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-sm text-slate-600 dark:text-slate-300 mb-1">Caducidad</label>
-                  <input
-                    type="date"
-                    value={form.expirationDate}
-                    onChange={(e) => setForm(f => ({ ...f, expirationDate: e.target.value }))}
-                    className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-slate-800 dark:text-white"
-                  />
+                <div className="field">
+                  <label>Foto del producto</label>
+                  <input type="file" accept="image/*" onChange={onFilePhoto} className="text-sm" />
+                  {form.photoData && (
+                    <img src={form.photoData} alt="preview" className="mt-2 w-20 h-20 object-cover rounded shadow-sm border border-[var(--glass-border)]" />
+                  )}
                 </div>
-              </div>
-              <div>
-                <label className="block text-sm text-slate-600 dark:text-slate-300 mb-1">Foto del producto</label>
-                <input type="file" accept="image/*" onChange={onFilePhoto} />
-                {form.photoData && (
-                  <img src={form.photoData} alt="preview" className="mt-2 w-20 h-20 object-cover rounded" />
-                )}
-              </div>
-              <div className="flex justify-end gap-2">
-                <button type="button" onClick={closeForm} className="px-4 py-2 rounded-md bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white">
-                  Cancelar
-                </button>
-                <button type="submit" className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md">
-                  <Save size={16} /> Guardar
-                </button>
-              </div>
-            </form>
+                <div className="flex justify-end gap-2 pt-2">
+                  <button type="button" onClick={closeForm} className="btn btn-ghost">
+                    Cancelar
+                  </button>
+                  <button type="submit" className="btn btn-primary">
+                    <Save size={16} /> Guardar
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}

@@ -7,11 +7,6 @@ import {
 } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 
-// Style Constants
-const buttonStyle = "flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl hover:opacity-90 font-bold shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed";
-const inputStyle = "w-full border dark:border-slate-600 rounded-xl px-4 py-2.5 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none transition-all";
-const labelStyle = "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5";
-
 const Settings = () => {
   const { darkMode, toggleTheme } = useTheme();
   const location = useLocation();
@@ -37,47 +32,49 @@ const Settings = () => {
   };
 
   return (
-    <div className="flex h-[calc(100vh-theme(spacing.20))] lg:h-screen overflow-hidden bg-transparent transition-colors duration-300">
-      {/* Sidebar Tabs */}
-      <div className="w-20 lg:w-64 bg-white/80 dark:bg-slate-800/50 backdrop-blur-lg border-r border-white/20 dark:border-slate-700/50 flex flex-col overflow-y-auto">
-        <div className="p-6 hidden lg:block pt-20"> {/* Added pt-20 to avoid overlap with global menu button */}
-          <h1 className="text-3xl font-bold text-slate-800 dark:text-white flex items-center gap-3">
-            <SettingsIcon className="text-primary" size={32} /> Configuración
-          </h1>
-        </div>
-        <nav className="flex-1 px-2 space-y-1 mt-4 lg:mt-0">
-          {tabs.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`w-full flex items-center gap-3 px-3 lg:px-4 py-3 rounded-xl transition-all ${activeTab === tab.id
-                ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
+    <div className="page active" style={{ padding: 0 }}>
+      <div className="flex h-[calc(100vh-60px)]">
+        {/* Sidebar Tabs */}
+        <div className="w-20 lg:w-64 border-r border-[var(--glass-border)] flex flex-col p-4">
+          <div className="hidden lg:block mb-6 pt-4">
+            <h1 className="text-xl font-bold flex items-center gap-2">
+              <SettingsIcon className="text-[var(--purple)]" size={24} /> Configuración
+            </h1>
+          </div>
+          <nav className="flex-1 space-y-2">
+            {tabs.map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`w-full flex items-center justify-center lg:justify-start gap-3 px-3 py-3 rounded-xl transition-all ${
+                  activeTab === tab.id
+                    ? 'bg-[var(--purple)] text-white shadow-md'
+                    : 'text-[var(--muted)] hover:bg-[var(--glass-white)]'
                 }`}
-            >
-              <tab.icon size={20} />
-              <span className="hidden lg:block font-medium">{tab.label}</span>
-            </button>
-          ))}
-        </nav>
-      </div>
+              >
+                <tab.icon size={20} />
+                <span className="hidden lg:block font-medium">{tab.label}</span>
+              </button>
+            ))}
+          </nav>
+        </div>
 
-      {/* Main Content */}
-      <div className="flex-1 overflow-y-auto p-4 lg:p-8 pt-20 lg:pt-8"> {/* Adjusted top padding for mobile overlap */}
-        <div className="max-w-4xl mx-auto">
-          {status.message && (
-            <div className={`mb-6 p-4 rounded-xl flex items-center gap-3 animate-fade-in ${status.type === 'success'
-              ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-              : 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-              }`}>
-              {status.type === 'success' ? <CheckCircle size={20} /> : <AlertTriangle size={20} />}
-              <p className="font-medium">{status.message}</p>
-            </div>
-          )}
+        {/* Main Content */}
+        <div className="flex-1 p-6 lg:p-8 overflow-y-auto">
+          <div className="max-w-4xl mx-auto">
+            {status.message && (
+              <div className={`alert-banner mb-6 ${status.type === 'success' ? '!bg-[var(--success-bg)] !text-[var(--success)] !border-[var(--success)]' : 'alert-danger'}`}>
+                <div className="flex items-center gap-2">
+                  {status.type === 'success' ? <CheckCircle size={16} /> : <AlertTriangle size={16} />}
+                  <span>{status.message}</span>
+                </div>
+              </div>
+            )}
 
-          {activeTab === 'notifications' && <NotificationsTab showStatus={showStatus} />}
-          {activeTab === 'system' && <SystemTab showStatus={showStatus} />}
-          {activeTab === 'limits' && <LimitsTab showStatus={showStatus} />}
+            {activeTab === 'notifications' && <NotificationsTab showStatus={showStatus} />}
+            {activeTab === 'system' && <SystemTab showStatus={showStatus} />}
+            {activeTab === 'limits' && <LimitsTab showStatus={showStatus} />}
+          </div>
         </div>
       </div>
     </div>
@@ -104,67 +101,67 @@ const NotificationsTab = ({ showStatus }) => {
   if (!config) return <div>Cargando...</div>;
 
   const NotificationSwitch = ({ checked, onChange, label }) => (
-    <label className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/30 cursor-pointer transition-colors group">
-      <span className="text-slate-700 dark:text-slate-300 font-medium group-hover:text-primary transition-colors">{label}</span>
+    <label className="flex items-center justify-between p-3 rounded-lg hover:bg-[var(--glass-white)] cursor-pointer transition-colors group">
+      <span className="font-medium group-hover:text-[var(--purple)] transition-colors">{label}</span>
       <div className="relative inline-flex items-center cursor-pointer">
         <input type="checkbox" className="sr-only peer" checked={checked} onChange={onChange} />
-        <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/30 dark:peer-focus:ring-primary/80 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+        <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[var(--purple)]"></div>
       </div>
     </label>
   );
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Preferencias de Notificación</h2>
+      <h2 className="text-2xl font-bold mb-4">Preferencias de Notificación</h2>
 
-      <div className="bg-white/80 dark:bg-slate-800/50 backdrop-blur-lg rounded-xl shadow-lg border border-white/20 dark:border-slate-700/50 overflow-hidden">
-        <div className="p-6 space-y-6">
+      <div className="card">
+        <div className="card-body p-6 space-y-6">
           <div>
-            <h3 className="font-semibold text-slate-800 dark:text-white mb-3 text-lg">Para el Administrador</h3>
+            <h3 className="font-semibold text-lg mb-3">Para el Administrador</h3>
             <div className="space-y-1">
               <NotificationSwitch
-                checked={config.admin.userExpiring}
+                checked={config.admin?.userExpiring || false}
                 onChange={() => toggle('admin', 'userExpiring')}
                 label="Avisar cuando un usuario está por vencer"
               />
               <NotificationSwitch
-                checked={config.admin.userSuspended}
+                checked={config.admin?.userSuspended || false}
                 onChange={() => toggle('admin', 'userSuspended')}
                 label="Avisar cuando un usuario es suspendido autom."
               />
             </div>
           </div>
 
-          <div className="w-full h-px bg-slate-200 dark:bg-slate-700/50"></div>
+          <div className="w-full h-px bg-[var(--glass-border)]"></div>
 
           <div>
-            <h3 className="font-semibold text-slate-800 dark:text-white mb-3 text-lg">Para el Usuario</h3>
+            <h3 className="font-semibold text-lg mb-3">Para el Usuario</h3>
             <div className="space-y-1">
               <NotificationSwitch
-                checked={config.user.closeCutoff}
+                checked={config.user?.closeCutoff || false}
                 onChange={() => toggle('user', 'closeCutoff')}
                 label="Enviar recordatorio cerca de fecha de corte"
               />
               <NotificationSwitch
-                checked={config.user.suspended}
+                checked={config.user?.suspended || false}
                 onChange={() => toggle('user', 'suspended')}
                 label="Notificar al ser suspendido"
               />
             </div>
           </div>
 
-          <div className="w-full h-px bg-slate-200 dark:bg-slate-700/50"></div>
+          <div className="w-full h-px bg-[var(--glass-border)]"></div>
 
           <div>
-            <h3 className="font-semibold text-slate-800 dark:text-white mb-3 text-lg">Canales de Envío</h3>
+            <h3 className="font-semibold text-lg mb-3">Canales de Envío</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <NotificationSwitch
-                checked={config.channels.system}
+                checked={config.channels?.system || false}
                 onChange={() => toggle('channels', 'system')}
                 label="Panel de Sistema"
               />
               <NotificationSwitch
-                checked={config.channels.email}
+                checked={config.channels?.email || false}
                 onChange={() => toggle('channels', 'email')}
                 label="Correo Electrónico"
               />
@@ -175,8 +172,6 @@ const NotificationsTab = ({ showStatus }) => {
     </div>
   );
 };
-
-
 
 const SystemTab = ({ showStatus }) => {
   const [sys, setSys] = useState(null);
@@ -191,27 +186,29 @@ const SystemTab = ({ showStatus }) => {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Sistema</h2>
-      <div className="bg-white/80 dark:bg-slate-800/50 backdrop-blur-lg rounded-xl shadow-lg border border-white/20 dark:border-slate-700/50 p-6 space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className={labelStyle}>Formato de Fecha</label>
-            <select className={`${inputStyle} bg-white dark:bg-slate-900`} value={sys.dateFormat} onChange={e => setSys({ ...sys, dateFormat: e.target.value })}>
-              <option value="DD/MM/YYYY">DD/MM/YYYY (27/01/2026)</option>
-              <option value="MM/DD/YYYY">MM/DD/YYYY (01/27/2026)</option>
-            </select>
+      <h2 className="text-2xl font-bold mb-4">Sistema</h2>
+      <div className="card">
+        <div className="card-body p-6 space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="field">
+              <label>Formato de Fecha</label>
+              <select value={sys.dateFormat} onChange={e => setSys({ ...sys, dateFormat: e.target.value })}>
+                <option value="DD/MM/YYYY">DD/MM/YYYY (27/01/2026)</option>
+                <option value="MM/DD/YYYY">MM/DD/YYYY (01/27/2026)</option>
+              </select>
+            </div>
+            <div className="field">
+              <label>Zona Horaria</label>
+              <select value={sys.timezone} onChange={e => setSys({ ...sys, timezone: e.target.value })}>
+                <option value="America/Caracas">America/Caracas</option>
+                <option value="America/New_York">America/New_York</option>
+                <option value="UTC">UTC</option>
+              </select>
+            </div>
           </div>
-          <div>
-            <label className={labelStyle}>Zona Horaria</label>
-            <select className={`${inputStyle} bg-white dark:bg-slate-900`} value={sys.timezone} onChange={e => setSys({ ...sys, timezone: e.target.value })}>
-              <option value="America/Caracas">America/Caracas</option>
-              <option value="America/New_York">America/New_York</option>
-              <option value="UTC">UTC</option>
-            </select>
+          <div className="pt-2">
+            <button onClick={save} className="btn btn-primary">Guardar Configuración</button>
           </div>
-        </div>
-        <div className="pt-2">
-          <button onClick={save} className={buttonStyle}>Guardar Configuración</button>
         </div>
       </div>
     </div>
@@ -238,35 +235,37 @@ const LimitsTab = ({ showStatus }) => {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Límites y Cuotas</h2>
-      <div className="bg-white/80 dark:bg-slate-800/50 backdrop-blur-lg rounded-xl shadow-lg border border-white/20 dark:border-slate-700/50 p-6 space-y-8">
-        <div>
-          <div className="flex justify-between mb-2">
-            <label className="font-semibold text-slate-700 dark:text-slate-300">Productos por Usuario</label>
-            <span className="text-primary font-bold">{limits.maxProducts}</span>
+      <h2 className="text-2xl font-bold mb-4">Límites y Cuotas</h2>
+      <div className="card">
+        <div className="card-body p-6 space-y-8">
+          <div>
+            <div className="flex justify-between mb-2">
+              <label className="font-semibold">Productos por Usuario</label>
+              <span className="text-[var(--purple)] font-bold">{limits.maxProducts}</span>
+            </div>
+            <input
+              type="range" min="100" max="2000" step="50"
+              value={limits.maxProducts}
+              onChange={e => handleChange('maxProducts', e.target.value)}
+              className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-[var(--purple)]"
+            />
+            <p className="text-xs text-[var(--muted)] mt-1">Límite para planes básicos.</p>
           </div>
-          <input
-            type="range" min="100" max="2000" step="50"
-            value={limits.maxProducts}
-            onChange={e => handleChange('maxProducts', e.target.value)}
-            className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary"
-          />
-          <p className="text-xs text-slate-500 mt-1">Límite para planes básicos.</p>
-        </div>
-        <div>
-          <div className="flex justify-between mb-2">
-            <label className="font-semibold text-slate-700 dark:text-slate-300">Clientes por Usuario</label>
-            <span className="text-primary font-bold">{limits.maxClients}</span>
+          <div>
+            <div className="flex justify-between mb-2">
+              <label className="font-semibold">Clientes por Usuario</label>
+              <span className="text-[var(--purple)] font-bold">{limits.maxClients}</span>
+            </div>
+            <input
+              type="range" min="50" max="1000" step="10"
+              value={limits.maxClients}
+              onChange={e => handleChange('maxClients', e.target.value)}
+              className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-[var(--purple)]"
+            />
           </div>
-          <input
-            type="range" min="50" max="1000" step="10"
-            value={limits.maxClients}
-            onChange={e => handleChange('maxClients', e.target.value)}
-            className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary"
-          />
-        </div>
-        <div className="pt-2">
-          <button onClick={save} className={buttonStyle}>Guardar Límites</button>
+          <div className="pt-2">
+            <button onClick={save} className="btn btn-primary">Guardar Límites</button>
+          </div>
         </div>
       </div>
     </div>

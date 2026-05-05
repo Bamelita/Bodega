@@ -149,259 +149,260 @@ const Clients = () => {
   };
 
   return (
-    <div className="p-8 lg:pt-20">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-slate-800 dark:text-white">Clientes</h1>
-        <button onClick={openNew} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2">
-          <Plus size={20} /> Nuevo Cliente
+    <div className="page active">
+      <div className="section-header mb-3">
+        <div className="section-title">Clientes</div>
+        <button onClick={openNew} className="btn btn-primary">
+          <Plus size={16} /> Nuevo Cliente
         </button>
       </div>
 
-      {message && <div className="mb-4 text-sm text-slate-700 dark:text-slate-200">{message}</div>}
+      {message && <div className="alert-banner alert-warning mb-3">{message}</div>}
 
-      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Search size={18} className="text-slate-500" />
-          <input
-            placeholder="Buscar por nombre, cédula o teléfono"
-            className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-slate-800 dark:text-white"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+      <div className="card">
+        <div className="card-header">
+          <div className="flex items-center gap-2 flex-1 w-full max-w-md bg-[var(--glass-light)] px-3 py-1.5 rounded border border-[var(--glass-border)]">
+            <Search size={16} className="text-[var(--muted)]" />
+            <input
+              placeholder="Buscar por nombre, cédula o teléfono"
+              className="bg-transparent border-none outline-none text-sm w-full"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm">
+        <div className="table-wrap">
+          <table>
             <thead>
-              <tr className="text-left text-slate-600 dark:text-slate-300">
-                <th className="px-3 py-2">Nombre</th>
-                <th className="px-3 py-2">Cédula</th>
-                <th className="px-3 py-2">Teléfono</th>
-                <th className="px-3 py-2">Deuda</th>
-                <th className="px-3 py-2">Encargo</th>
-                <th className="px-3 py-2">Acciones</th>
+              <tr>
+                <th>Nombre</th>
+                <th>Cédula</th>
+                <th>Teléfono</th>
+                <th>Deuda</th>
+                <th>Encargo</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map(c => (
-                <tr key={c.id} className="border-t border-slate-100 dark:border-slate-700">
-                  <td className="px-3 py-2 text-slate-700 dark:text-slate-200">{c.firstName} {c.lastName}</td>
-                  <td className="px-3 py-2 text-slate-700 dark:text-slate-200">{c.cedula || '-'}</td>
-                  <td className="px-3 py-2 text-slate-700 dark:text-slate-200">{c.phone || '-'}</td>
-                  <td className="px-3 py-2">
+                <tr key={c.id}>
+                  <td className="fw-8">{c.firstName} {c.lastName}</td>
+                  <td>{c.cedula || '-'}</td>
+                  <td>{c.phone || '-'}</td>
+                  <td>
                     {c.debt?.enabled && c.debt.parts > 0 ? (
-                      <span className="text-slate-700 dark:text-slate-200">
-                        {c.debt.parts} cuotas de ${Number(c.debt.installmentAmount || 0).toFixed(2)} — {c.debt.frequency}
-                      </span>
+                      <div className="flex flex-col gap-1 items-start">
+                        <span className="badge badge-out">
+                          {c.debt.parts} cuotas de ${Number(c.debt.installmentAmount || 0).toFixed(2)}
+                        </span>
+                        <span className="text-[0.65rem] text-[var(--muted)] uppercase">{c.debt.frequency}</span>
+                      </div>
                     ) : (
-                      <span className="text-slate-500">Sin deuda</span>
+                      <span className="badge badge-low">Sin deuda</span>
                     )}
                   </td>
-                  <td className="px-3 py-2">
+                  <td>
                     {c.specialOrder?.enabled ? (
-                      <span className="text-slate-700 dark:text-slate-200">
-                        {c.specialOrder.product} — {c.specialOrder.payInAdvance ? `Anticipo $${Number(c.specialOrder.advanceAmount || 0).toFixed(2)}` : 'Pago al llegar'}
-                      </span>
+                      <div className="flex flex-col gap-1 items-start">
+                        <span className="fw-8 text-sm">{c.specialOrder.product}</span>
+                        <span className="badge badge-venta">
+                          {c.specialOrder.payInAdvance ? `Anticipo $${Number(c.specialOrder.advanceAmount || 0).toFixed(2)}` : 'Pago al llegar'}
+                        </span>
+                      </div>
                     ) : (
-                      <span className="text-slate-500">Sin encargo</span>
+                      <span className="text-[var(--muted)] text-sm">Sin encargo</span>
                     )}
                   </td>
-                  <td className="px-3 py-2">
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => openEdit(c)}
-                        className="inline-flex items-center gap-1 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white px-3 py-1 rounded"
-                      >
-                        <Edit size={14} /> Editar
+                  <td>
+                    <div className="td-actions">
+                      <button onClick={() => openEdit(c)} className="action-btn edit" title="Editar">
+                        <Edit size={14} />
                       </button>
-                      <button
-                        onClick={() => deleteClient(c)}
-                        className="inline-flex items-center gap-1 bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
-                      >
-                        <Trash2 size={14} /> Eliminar
+                      <button onClick={() => deleteClient(c)} className="action-btn del" title="Eliminar">
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </td>
                 </tr>
               ))}
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan="6" className="text-center py-8 text-[var(--muted)]">No se encontraron clientes</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
       </div>
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4">
-          <div className="w-full max-w-2xl bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold text-slate-800 dark:text-white">{form.id ? 'Editar cliente' : 'Nuevo cliente'}</h2>
-              <button onClick={() => setShowForm(false)} className="text-slate-600 dark:text-slate-300">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="card max-w-2xl w-full animate-fade-in border-none shadow-2xl my-8">
+            <div className="card-header">
+              <h2 className="card-title text-lg">{form.id ? 'Editar cliente' : 'Nuevo cliente'}</h2>
+              <button onClick={() => setShowForm(false)} className="text-[var(--muted)] hover:text-[var(--ink)] dark:hover:text-white transition-colors">
                 <X size={20} />
               </button>
             </div>
-            <form onSubmit={submitForm} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm text-slate-600 dark:text-slate-300 mb-1">Nombre</label>
-                  <input
-                    value={form.firstName}
-                    onChange={(e) => setForm(f => ({ ...f, firstName: e.target.value }))}
-                    className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-slate-800 dark:text-white"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-slate-600 dark:text-slate-300 mb-1">Apellido</label>
-                  <input
-                    value={form.lastName}
-                    onChange={(e) => setForm(f => ({ ...f, lastName: e.target.value }))}
-                    className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-slate-800 dark:text-white"
-                    required
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm text-slate-600 dark:text-slate-300 mb-1">Cédula</label>
-                  <input
-                    value={form.cedula}
-                    onChange={(e) => setForm(f => ({ ...f, cedula: e.target.value }))}
-                    className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-slate-800 dark:text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-slate-600 dark:text-slate-300 mb-1">Teléfono</label>
-                  <input
-                    value={form.phone}
-                    onChange={(e) => setForm(f => ({ ...f, phone: e.target.value }))}
-                    className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-slate-800 dark:text-white"
-                  />
-                </div>
-              </div>
-
-              <div className="rounded-lg border border-slate-200 dark:border-slate-700 p-3">
-                <div className="flex items-center justify-between">
-                  <div className="font-medium text-slate-700 dark:text-slate-200">Deuda</div>
-                  <label className="flex items-center gap-2 text-sm">
+            <div className="card-body">
+              <form onSubmit={submitForm} className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="field">
+                    <label>Nombre</label>
                     <input
-                      type="checkbox"
-                      checked={form.debtEnabled}
-                      onChange={(e) => setForm(f => ({ ...f, debtEnabled: e.target.checked }))}
+                      value={form.firstName}
+                      onChange={(e) => setForm(f => ({ ...f, firstName: e.target.value }))}
+                      required
                     />
-                    Activo
-                  </label>
-                </div>
-                {form.debtEnabled && (
-                  <div className="grid grid-cols-4 gap-3 mt-3">
-                    <div>
-                      <label className="block text-sm text-slate-600 dark:text-slate-300 mb-1">Partes</label>
-                      <input
-                        type="number"
-                        min="1"
-                        value={form.parts}
-                        onChange={(e) => setForm(f => ({ ...f, parts: e.target.value }))}
-                        className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-slate-800 dark:text-white"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm text-slate-600 dark:text-slate-300 mb-1">Monto por parte</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={form.installmentAmount}
-                        onChange={(e) => setForm(f => ({ ...f, installmentAmount: e.target.value }))}
-                        className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-slate-800 dark:text-white"
-                      />
-                    </div>
-                    <div className="col-span-2">
-                      <label className="block text-sm text-slate-600 dark:text-slate-300 mb-1">Frecuencia</label>
-                      <select
-                        value={form.frequency}
-                        onChange={(e) => setForm(f => ({ ...f, frequency: e.target.value }))}
-                        className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-slate-800 dark:text-white"
-                      >
-                        <option value="">Selecciona</option>
-                        <option value="semanal">Semanal</option>
-                        <option value="quincenal">Quincenal</option>
-                        <option value="mensual">Mensual</option>
-                      </select>
-                    </div>
-                    <div className="col-span-4 text-xs text-slate-600 dark:text-slate-300">
-                      Total estimado: ${((Number(form.parts || 0) * Number(form.installmentAmount || 0)) || 0).toFixed(2)}
-                    </div>
-                    <div className="col-span-4">
-                      <DebtSchedulePreview parts={Number(form.parts || 0)} frequency={form.frequency} baseDate={new Date()} />
-                    </div>
                   </div>
-                )}
-              </div>
-
-              <div className="rounded-lg border border-slate-200 dark:border-slate-700 p-3">
-                <div className="flex items-center justify-between">
-                  <div className="font-medium text-slate-700 dark:text-slate-200">Encargo</div>
-                  <label className="flex items-center gap-2 text-sm">
+                  <div className="field">
+                    <label>Apellido</label>
                     <input
-                      type="checkbox"
-                      checked={form.orderEnabled}
-                      onChange={(e) => setForm(f => ({ ...f, orderEnabled: e.target.checked }))}
+                      value={form.lastName}
+                      onChange={(e) => setForm(f => ({ ...f, lastName: e.target.value }))}
+                      required
                     />
-                    Activo
-                  </label>
-                </div>
-                {form.orderEnabled && (
-                  <div className="grid grid-cols-4 gap-3 mt-3">
-                    <div className="col-span-2">
-                      <label className="block text-sm text-slate-600 dark:text-slate-300 mb-1">Producto solicitado</label>
-                      <input
-                        value={form.product}
-                        onChange={(e) => setForm(f => ({ ...f, product: e.target.value }))}
-                        className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-slate-800 dark:text-white"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm text-slate-600 dark:text-slate-300 mb-1">Pago por adelantado</label>
-                      <select
-                        value={form.payInAdvance ? 'si' : 'no'}
-                        onChange={(e) => setForm(f => ({ ...f, payInAdvance: e.target.value === 'si' }))}
-                        className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-slate-800 dark:text-white"
-                      >
-                        <option value="no">No</option>
-                        <option value="si">Sí</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm text-slate-600 dark:text-slate-300 mb-1">Anticipo</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={form.advanceAmount}
-                        onChange={(e) => setForm(f => ({ ...f, advanceAmount: e.target.value }))}
-                        className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-slate-800 dark:text-white"
-                      />
-                    </div>
-                    <div className="col-span-4">
-                      <label className="block text-sm text-slate-600 dark:text-slate-300 mb-1">Notas</label>
-                      <textarea
-                        value={form.notes}
-                        onChange={(e) => setForm(f => ({ ...f, notes: e.target.value }))}
-                        className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-slate-800 dark:text-white"
-                        rows={3}
-                      />
-                    </div>
                   </div>
-                )}
-              </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="field">
+                    <label>Cédula</label>
+                    <input
+                      value={form.cedula}
+                      onChange={(e) => setForm(f => ({ ...f, cedula: e.target.value }))}
+                    />
+                  </div>
+                  <div className="field">
+                    <label>Teléfono</label>
+                    <input
+                      value={form.phone}
+                      onChange={(e) => setForm(f => ({ ...f, phone: e.target.value }))}
+                    />
+                  </div>
+                </div>
 
-              <div className="flex justify-end gap-2">
-                <button type="button" onClick={closeForm} className="px-4 py-2 rounded-md bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white">
-                  Cancelar
-                </button>
-                <button type="submit" disabled={loading} className={`inline-flex items-center gap-2 px-4 py-2 rounded-md text-white ${loading ? 'bg-indigo-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'}`}>
-                  <Save size={16} /> {loading ? 'Guardando...' : 'Guardar'}
-                </button>
-              </div>
-            </form>
+                <div className="bg-[var(--glass-light)] rounded-lg border border-[var(--glass-border)] p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="font-semibold">Deuda</div>
+                    <label className="flex items-center gap-2 text-sm cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={form.debtEnabled}
+                        onChange={(e) => setForm(f => ({ ...f, debtEnabled: e.target.checked }))}
+                        className="rounded"
+                      />
+                      Activar
+                    </label>
+                  </div>
+                  {form.debtEnabled && (
+                    <div className="grid grid-cols-4 gap-4 mt-2">
+                      <div className="field col-span-1">
+                        <label>Partes</label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={form.parts}
+                          onChange={(e) => setForm(f => ({ ...f, parts: e.target.value }))}
+                        />
+                      </div>
+                      <div className="field col-span-1">
+                        <label>Monto cuota</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={form.installmentAmount}
+                          onChange={(e) => setForm(f => ({ ...f, installmentAmount: e.target.value }))}
+                        />
+                      </div>
+                      <div className="field col-span-2">
+                        <label>Frecuencia</label>
+                        <select
+                          value={form.frequency}
+                          onChange={(e) => setForm(f => ({ ...f, frequency: e.target.value }))}
+                        >
+                          <option value="">Selecciona</option>
+                          <option value="semanal">Semanal</option>
+                          <option value="quincenal">Quincenal</option>
+                          <option value="mensual">Mensual</option>
+                        </select>
+                      </div>
+                      <div className="col-span-4 text-sm font-medium text-[var(--purple)]">
+                        Total estimado: ${((Number(form.parts || 0) * Number(form.installmentAmount || 0)) || 0).toFixed(2)}
+                      </div>
+                      <div className="col-span-4">
+                        <DebtSchedulePreview parts={Number(form.parts || 0)} frequency={form.frequency} baseDate={new Date()} />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="bg-[var(--glass-light)] rounded-lg border border-[var(--glass-border)] p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="font-semibold">Encargo</div>
+                    <label className="flex items-center gap-2 text-sm cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={form.orderEnabled}
+                        onChange={(e) => setForm(f => ({ ...f, orderEnabled: e.target.checked }))}
+                        className="rounded"
+                      />
+                      Activar
+                    </label>
+                  </div>
+                  {form.orderEnabled && (
+                    <div className="grid grid-cols-4 gap-4 mt-2">
+                      <div className="field col-span-2">
+                        <label>Producto solicitado</label>
+                        <input
+                          value={form.product}
+                          onChange={(e) => setForm(f => ({ ...f, product: e.target.value }))}
+                        />
+                      </div>
+                      <div className="field col-span-1">
+                        <label>Pago adelantado</label>
+                        <select
+                          value={form.payInAdvance ? 'si' : 'no'}
+                          onChange={(e) => setForm(f => ({ ...f, payInAdvance: e.target.value === 'si' }))}
+                        >
+                          <option value="no">No</option>
+                          <option value="si">Sí</option>
+                        </select>
+                      </div>
+                      <div className="field col-span-1">
+                        <label>Anticipo</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={form.advanceAmount}
+                          onChange={(e) => setForm(f => ({ ...f, advanceAmount: e.target.value }))}
+                        />
+                      </div>
+                      <div className="field col-span-4">
+                        <label>Notas</label>
+                        <textarea
+                          value={form.notes}
+                          onChange={(e) => setForm(f => ({ ...f, notes: e.target.value }))}
+                          rows={3}
+                          className="w-full bg-[var(--glass-white)] border border-[var(--glass-border)] rounded-md outline-none px-3 py-2 text-[var(--ink)] dark:text-white"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex justify-end gap-2 pt-2">
+                  <button type="button" onClick={closeForm} className="btn btn-ghost">
+                    Cancelar
+                  </button>
+                  <button type="submit" disabled={loading} className="btn btn-primary">
+                    <Save size={16} /> {loading ? 'Guardando...' : 'Guardar'}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}

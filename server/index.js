@@ -26,6 +26,7 @@ app.use("/api/movements", require("./routes/movementRoutes"));
 app.use("/api/backups", require("./routes/backupRoutes"));
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/sales", require("./routes/salesRoutes"));
+app.use("/api/settings", require("./routes/settingsRoutes"));
 
 // Misc API routes
 app.use("/api", require("./routes/miscRoutes"));

@@ -30,6 +30,7 @@ const defaults = {
   backups: [],
   backupLogs: [],
   backupSchedule: { enabled: false, frequency: null, nextRun: null },
+  auditLogs: [],
 };
 
 let data = { ...defaults };
@@ -65,6 +66,7 @@ module.exports = {
   backups: data.backups,
   backupLogs: data.backupLogs,
   backupSchedule: data.backupSchedule,
+  auditLogs: data.auditLogs,
   backupStorageCapacityBytes,
   save,
 };
