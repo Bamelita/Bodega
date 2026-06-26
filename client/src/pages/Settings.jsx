@@ -271,7 +271,7 @@ const SystemTab = ({ showStatus }) => {
   useEffect(() => { api.get('/settings/system').then(r => setSys(r.data)).catch(() => { }); }, []);
 
   const save = () => {
-    api.patch('/settings/system', sys);
+    api.patch('/settings/system', { ...sys, themeColor });
     showStatus('success', 'Configuración de sistema guardada');
   };
 
