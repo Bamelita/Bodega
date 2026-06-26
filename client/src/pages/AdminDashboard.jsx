@@ -20,9 +20,6 @@ const AdminDashboard = () => {
     cedula: '',
     phone: '',
     email: '',
-    paymentMethod: 'Efectivo',
-    paymentAmount: 0,
-    startDate: '',
     cutoffDate: '',
     planId: ''
   });
@@ -130,9 +127,6 @@ const AdminDashboard = () => {
       cedula: '',
       phone: '',
       email: '',
-      paymentMethod: 'Efectivo',
-      paymentAmount: 0,
-      startDate: '',
       cutoffDate: '',
       planId: ''
     });
@@ -241,10 +235,6 @@ const AdminDashboard = () => {
                 <input type="text" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
               </div>
               <div className="field">
-                <label>Monto Mensual</label>
-                <input type="number" value={formData.paymentAmount ?? ''} onChange={e => setFormData({ ...formData, paymentAmount: e.target.value === '' ? '' : Number(e.target.value) })} />
-              </div>
-              <div className="field">
                 <label>Fecha de Corte</label>
                 <input type="date" value={formData.cutoffDate} onChange={e => setFormData({ ...formData, cutoffDate: e.target.value })} />
               </div>
@@ -309,8 +299,16 @@ const AdminDashboard = () => {
                     <div className="td-sku">{user.phone || '—'}</div>
                   </td>
                   <td>
-                    <div className="mono fw-8">${user.paymentAmount}</div>
-                    <div className="td-sku">Corte: {user.cutoffDate ? new Date(user.cutoffDate).toLocaleDateString() : '-'}</div>
+                    <div className="font-bold text-sm text-[var(--ink)]">
+                      {user.planId && plans.find(p => p.id === user.planId) 
+                        ? plans.find(p => p.id === user.planId).name 
+                        : 'Sin Plan'}
+                    </div>
+                    <div className="td-sku">
+                      {user.planId && plans.find(p => p.id === user.planId) 
+                        ? `$${plans.find(p => p.id === user.planId).price}/mes` 
+                        : 'Gratis'}
+                    </div>
                   </td>
                   <td>
                     <span className={`badge ${user.isActive ? 'badge-active' : 'badge-inactive'}`}>
