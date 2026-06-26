@@ -108,7 +108,11 @@ const AdminBilling = () => {
                 </button>
             </div>
             
-            <p className="text-sm font-medium opacity-80 mb-4" style={{ color: 'inherit' }}>Crea y administra los planes de suscripción para tus usuarios.</p>
+            <div className="mb-6">
+                <p className="text-sm font-medium text-[var(--ink)] bg-[var(--glass-white)] backdrop-blur-md px-4 py-2.5 rounded-xl shadow-sm border border-[var(--glass-border)] inline-block">
+                    Crea y administra los planes de suscripción para tus usuarios.
+                </p>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                 {plans.map(plan => (
