@@ -6,9 +6,8 @@ import { Users, UserPlus, Search, Edit, Trash2, Save, X, AlertTriangle, Bell, Ey
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
+  const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
-  // Removed showModal state
-  // Removed showModal state
   const toast = useToast();
   const [notifications, setNotifications] = useState([]);
   const [confirmDelete, setConfirmDelete] = useState(null); // userId pending confirmation
@@ -24,13 +23,15 @@ const AdminDashboard = () => {
     paymentMethod: 'Efectivo',
     paymentAmount: 0,
     startDate: '',
-    cutoffDate: ''
+    cutoffDate: '',
+    planId: ''
   });
   const [editingId, setEditingId] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     fetchUsers();
+    fetchPlans();
   }, []);
 
   const fetchUsers = async () => {
@@ -44,6 +45,15 @@ const AdminDashboard = () => {
       console.error('Error fetching users', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchPlans = async () => {
+    try {
+      const res = await api.get('/plans');
+      setPlans(res.data);
+    } catch (error) {
+      console.error('Error fetching plans', error);
     }
   };
 
@@ -87,11 +97,10 @@ const AdminDashboard = () => {
   const handleEdit = (user) => {
     setFormData({
       ...user,
-      password: '' // Don't show password, require new one only if changing
+      password: '',
+      planId: user.planId || ''
     });
     setEditingId(user.id);
-    // Removed setShowModal(true)
-    // Scroll to top to show form
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -124,7 +133,8 @@ const AdminDashboard = () => {
       paymentMethod: 'Efectivo',
       paymentAmount: 0,
       startDate: '',
-      cutoffDate: ''
+      cutoffDate: '',
+      planId: ''
     });
     setEditingId(null);
   };
@@ -237,6 +247,18 @@ const AdminDashboard = () => {
               <div className="field">
                 <label>Fecha de Corte</label>
                 <input type="date" value={formData.cutoffDate} onChange={e => setFormData({ ...formData, cutoffDate: e.target.value })} />
+              </div>
+              <div className="field">
+                <label>Plan de Suscripción</label>
+                <select
+                    value={formData.planId || ''}
+                    onChange={e => setFormData({ ...formData, planId: e.target.value ? Number(e.target.value) : null })}
+                >
+                    <option value="">Sin Plan (Gratuito)</option>
+                    {plans.map(p => (
+                        <option key={p.id} value={p.id}>{p.name} - ${p.price}/mes</option>
+                    ))}
+                </select>
               </div>
             </div>
 
