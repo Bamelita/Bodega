@@ -42,6 +42,24 @@ const AiAssistant = () => {
     }
   };
 
+  const renderFormattedText = (text) => {
+    if (!text) return null;
+    const parts = text.split(/(\*\*.*?\*\*)/g);
+    return parts.map((part, i) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={i} style={{ fontWeight: 700 }}>{part.slice(2, -2)}</strong>;
+      }
+      // Also handle single asterisks for italics if needed, but bold is most common
+      const italicParts = part.split(/(\*.*?\*)/g);
+      return italicParts.map((ip, j) => {
+         if (ip.startsWith('*') && ip.endsWith('*')) {
+           return <em key={`${i}-${j}`}>{ip.slice(1, -1)}</em>;
+         }
+         return <span key={`${i}-${j}`}>{ip}</span>;
+      });
+    });
+  };
+
   return (
     <>
       {/* Floating Button */}
@@ -73,8 +91,8 @@ const AiAssistant = () => {
           {messages.map((msg, idx) => (
             <div key={idx} className={`ai-msg-row ${msg.role === 'user' ? 'user' : 'ai'}`}>
               {msg.role === 'ai' && <div className="ai-msg-avatar"><Bot size={14} /></div>}
-              <div className="ai-msg-bubble">
-                {msg.content}
+              <div className="ai-msg-bubble" style={{ whiteSpace: 'pre-wrap' }}>
+                {renderFormattedText(msg.content)}
               </div>
             </div>
           ))}
