@@ -1,14 +1,7 @@
 const express = require("express");
 const router = express.Router();
-let { movements, products } = require("../data/store");
-const { createClient } = require("@supabase/supabase-js");
-
-const SUPABASE_URL = process.env.SUPABASE_URL || null;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || null;
-const hasSupabase = !!(SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY);
-const supabase = hasSupabase
-  ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
-  : null;
+let { movements, products, save } = require("../data/store");
+const { supabase, hasSupabase } = require("../config/supabaseClient");
 
 // Get Movements
 router.get("/", async (req, res) => {
@@ -71,6 +64,7 @@ router.put("/:id", async (req, res) => {
       }
     }
     movements[mvIndex] = { ...mv, quantity: qNew };
+    save(); // Persist stock and movement changes
     return res.json({ movement: movements[mvIndex], product });
   }
   try {
@@ -166,6 +160,7 @@ router.delete("/:id", async (req, res) => {
       product.stock -= mv.quantity;
     }
     movements.splice(mvIndex, 1);
+    save(); // Persist stock and movement deletion
     return res.json({ message: "Movimiento eliminado", product });
   }
   try {

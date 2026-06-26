@@ -1,13 +1,31 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Package, Plus, Search, Edit, Trash2, Save, UploadCloud, FileSpreadsheet, Image as ImageIcon, X } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
+import { Package, Plus, Search, Edit, Trash2, Save, UploadCloud, FileSpreadsheet, Image as ImageIcon, X, AlertTriangle } from 'lucide-react';
 import api from '../config/api';
+import { useToast } from '../context/ToastContext';
+import { TableSkeleton } from '../components/Skeleton';
 
 const Inventory = () => {
+  const location = useLocation();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  const [search, setSearch] = useState('');
+  
+  // Read search from URL if present
+  const queryParams = new URLSearchParams(location.search);
+  const initialSearch = queryParams.get('search') || '';
+  
+  const [search, setSearch] = useState(initialSearch);
   const [categoryFilter, setCategoryFilter] = useState('');
+  const toast = useToast();
+  const [confirmDialog, setConfirmDialog] = useState(null);
+
+  useEffect(() => {
+    const qParams = new URLSearchParams(location.search);
+    const s = qParams.get('search');
+    if (s !== null) {
+      setSearch(s);
+    }
+  }, [location.search]);
 
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
@@ -40,7 +58,7 @@ const Inventory = () => {
       const res = await api.get('/products');
       setProducts(res.data);
     } catch (e) {
-      setMessage('Error cargando productos');
+      toast.error('Error cargando productos');
     } finally {
       setLoading(false);
     }
@@ -93,7 +111,6 @@ const Inventory = () => {
   };
   const submitForm = async (e) => {
     e.preventDefault();
-    setMessage('');
     const payload = {
       name: form.name,
       category: form.category,
@@ -108,29 +125,39 @@ const Inventory = () => {
       if (form.id) {
         const res = await api.put(`/products/${form.id}`, payload);
         setProducts(prev => prev.map(p => p.id === form.id ? res.data : p));
-        setMessage('Producto actualizado');
+        toast.success('Producto actualizado');
       } else {
         const res = await api.post('/products', payload);
         setProducts(prev => [res.data, ...prev]);
-        setMessage('Producto creado');
+        toast.success('Producto creado');
       }
       setShowForm(false);
     } catch (err) {
       const msg = err?.response?.data?.message || 'Error guardando producto';
-      setMessage(msg);
+      toast.error(msg);
     }
   };
 
   const deleteProduct = async (p) => {
-    if (!confirm('¿Eliminar producto?')) return;
     try {
       await api.delete(`/products/${p.id}`);
       setProducts(prev => prev.filter(x => x.id !== p.id));
-      setMessage('Producto eliminado');
+      toast.success('Producto eliminado');
     } catch (err) {
       const msg = err?.response?.data?.message || 'Error eliminando producto';
-      setMessage(msg);
+      toast.error(msg);
     }
+  };
+
+  const confirmDelete = (p) => {
+    setConfirmDialog({
+      title: 'Eliminar producto',
+      desc: `¿Estás seguro que deseas eliminar "${p.name}"?`,
+      onConfirm: () => {
+        deleteProduct(p);
+        setConfirmDialog(null);
+      }
+    });
   };
 
   const exportCSV = async () => {
@@ -143,7 +170,7 @@ const Inventory = () => {
       a.click();
       URL.revokeObjectURL(url);
     } catch {
-      setMessage('Error exportando productos');
+      toast.error('Error exportando productos');
     }
   };
 
@@ -177,10 +204,10 @@ const Inventory = () => {
         });
         const res = await api.post('/products/import', { products: items });
         setProducts(prev => [...res.data.created, ...prev]);
-        setMessage(`Importados ${res.data.created.length} productos`);
+        toast.success(`Importados ${res.data.created.length} productos`);
         e.target.value = '';
       } catch {
-        setMessage('Error importando CSV');
+        toast.error('Error importando CSV');
       }
     };
     reader.readAsText(file, 'utf-8');
@@ -204,8 +231,6 @@ const Inventory = () => {
         </div>
       </div>
 
-      {message && <div className="alert-banner alert-warning mb-3">{message}</div>}
-
       <div className="card">
         <div className="card-header flex-col sm:flex-row items-start sm:items-center gap-3">
           <div className="flex items-center gap-2 flex-1 w-full bg-[var(--glass-light)] px-3 py-1.5 rounded border border-[var(--glass-border)]">
@@ -228,75 +253,84 @@ const Inventory = () => {
             ))}
           </select>
         </div>
-
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Foto</th>
-                <th>Nombre</th>
-                <th>Categoría</th>
-                <th>Precio</th>
-                <th>Costo</th>
-                <th>Stock</th>
-                <th>Caducidad</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map(p => (
-                <tr key={p.id}>
-                  <td>
-                    {p.photoData ? (
-                      <img src={p.photoData} alt={p.name} className="w-10 h-10 object-cover rounded shadow-sm" />
-                    ) : (
-                      <div className="w-10 h-10 bg-[var(--glass-light)] rounded flex items-center justify-center text-[var(--muted)]">
-                        <ImageIcon size={20} />
-                      </div>
-                    )}
-                  </td>
-                  <td className="fw-8">{p.name}</td>
-                  <td>{p.category || '-'}</td>
-                  <td className="mono fw-8">${p.price?.toFixed(2)}</td>
-                  <td className="mono">${(p.cost ?? 0).toFixed(2)}</td>
-                  <td>
-                    <span className={`badge ${p.stock <= (p.minStock || 0) ? 'badge-out' : 'badge-low'}`}>
-                      {p.stock}
-                    </span>
-                  </td>
-                  <td>{p.expirationDate || '-'}</td>
-                  <td>
-                    <div className="td-actions">
-                      <button onClick={() => openEdit(p)} className="action-btn edit" title="Editar">
-                        <Edit size={14} />
-                      </button>
-                      <button onClick={() => deleteProduct(p)} className="action-btn del" title="Eliminar">
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {filtered.length === 0 && (
+        {loading ? (
+          <TableSkeleton columns={7} />
+        ) : (
+          <div className="table-wrap">
+            <table>
+              <thead>
                 <tr>
-                  <td colSpan="8" className="text-center py-8 text-[var(--muted)]">No se encontraron productos</td>
+                  <th>Producto</th>
+                  <th>Categoría</th>
+                  <th>Stock</th>
+                  <th>Precio</th>
+                  <th>Costo</th>
+                  <th>Vencimiento</th>
+                  <th>Acciones</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {filtered.map(p => (
+                  <tr key={p.id}>
+                    <td>
+                      <div className="td-product">
+                        <div className="td-product-icon">
+                          <Package size={18} className="text-[var(--purple)]" />
+                        </div>
+                        <div>
+                          <div className="td-name">{p.name}</div>
+                          <div className="td-sku">ID: {String(p.id).padStart(4, '0')}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>{p.category}</td>
+                    <td>
+                      <div className="flex items-center gap-2">
+                        <span className={`mono fw-8 ${p.stock <= p.minStock ? 'text-danger' : ''}`}>{p.stock}</span>
+                        {p.stock <= p.minStock && <span className="badge badge-low">Bajo</span>}
+                      </div>
+                      <div className="stock-bar-wrap">
+                        <div className="stock-bar">
+                          <div className="stock-fill bg-[var(--purple)]" style={{ width: `${Math.min(100, (p.stock / Math.max(1, p.minStock)) * 50)}%` }}></div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="mono">${Number(p.price).toFixed(2)}</td>
+                    <td className="mono">${Number(p.cost).toFixed(2)}</td>
+                    <td>{p.expirationDate || '-'}</td>
+                    <td>
+                      <div className="td-actions">
+                        <button onClick={() => openEdit(p)} className="action-btn edit" title="Editar">
+                          <Edit size={14} />
+                        </button>
+                        <button onClick={() => confirmDelete(p)} className="action-btn del" title="Eliminar">
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {filtered.length === 0 && (
+                  <tr>
+                    <td colSpan="7" className="text-center py-8 text-[var(--muted)]">No se encontraron productos</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="card max-w-lg w-full animate-fade-in border-none shadow-2xl">
-            <div className="card-header">
-              <h2 className="card-title text-lg">{form.id ? 'Editar producto' : 'Nuevo producto'}</h2>
-              <button onClick={closeForm} className="text-[var(--muted)] hover:text-[var(--ink)] dark:hover:text-white transition-colors">
-                <X size={20} />
+        <div className="overlay show" onClick={closeForm}>
+          <div className="modal modal-wide" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 className="modal-title">{form.id ? 'Editar producto' : 'Nuevo producto'}</h2>
+              <button type="button" onClick={closeForm} className="modal-close">
+                <X size={16} />
               </button>
             </div>
-            <div className="card-body">
+            <div className="modal-body">
               <form onSubmit={submitForm} className="space-y-4">
                 <div className="field">
                   <label>Nombre</label>
@@ -382,6 +416,25 @@ const Inventory = () => {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm Dialog Modal */}
+      {confirmDialog && (
+        <div className="overlay show">
+          <div className="modal confirm-modal">
+            <div className="flex justify-center mb-2">
+              <div className="w-16 h-16 rounded-full bg-[var(--danger-bg)] flex items-center justify-center text-[var(--danger)]">
+                <AlertTriangle size={32} />
+              </div>
+            </div>
+            <h3 className="confirm-title">{confirmDialog.title}</h3>
+            <p className="confirm-desc">{confirmDialog.desc}</p>
+            <div className="confirm-btns">
+              <button className="btn btn-ghost" onClick={() => setConfirmDialog(null)}>Cancelar</button>
+              <button className="btn btn-danger" onClick={confirmDialog.onConfirm}>Eliminar</button>
             </div>
           </div>
         </div>

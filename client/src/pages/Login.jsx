@@ -19,6 +19,7 @@ const Login = () => {
   const [resetEmail, setResetEmail] = useState('');
   const [resetStep, setResetStep] = useState(1); // 1: Email, 2: New Password
   const [resetUserId, setResetUserId] = useState(null);
+  const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [resetSuccess, setResetSuccess] = useState(false);
@@ -43,9 +44,12 @@ const Login = () => {
     e.preventDefault();
     setError('');
     try {
-      const res = await api.post('/users/verify-email', { email: resetEmail });
+      const res = await api.post('/auth/verify-email', { email: resetEmail });
       if (res.data.success) {
         setResetUserId(res.data.userId);
+        if (res.data.devOtp) {
+          setOtp(res.data.devOtp); // Auto-fill for dev/demo mode
+        }
         setResetStep(2);
       }
     } catch (err) {
@@ -61,18 +65,19 @@ const Login = () => {
       return;
     }
     try {
-      await api.put(`/users/${resetUserId}`, { password: newPassword });
+      await api.post('/auth/reset-password', { userId: resetUserId, otp, newPassword });
       setResetSuccess(true);
       setTimeout(() => {
         setIsResetting(false);
         setResetSuccess(false);
         setResetStep(1);
         setResetEmail('');
+        setOtp('');
         setNewPassword('');
         setConfirmPassword('');
       }, 3000);
     } catch (err) {
-      setError('Error al actualizar contraseña');
+      setError(err.response?.data?.message || 'Error al actualizar contraseña');
     }
   };
 
@@ -191,6 +196,17 @@ const Login = () => {
                   </form>
                 ) : (
                   <form onSubmit={handleResetPassword} className="space-y-4">
+                    <div className="field">
+                      <label>Código de verificación (OTP)</label>
+                      <input
+                        type="text"
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value)}
+                        placeholder="Código de 6 dígitos"
+                        required
+                        className="text-center tracking-widest font-mono text-lg"
+                      />
+                    </div>
                     <div className="field">
                       <label>Nueva Contraseña</label>
                       <input

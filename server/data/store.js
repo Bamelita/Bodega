@@ -31,6 +31,58 @@ const defaults = {
   backupLogs: [],
   backupSchedule: { enabled: false, frequency: null, nextRun: null },
   auditLogs: [],
+  supportMessages: [],
+  plans: [
+    {
+      id: 1,
+      name: "🥉 Básico",
+      price: 9.99,
+      currency: "USD",
+      features: ["Hasta 50 Productos", "1 Usuario", "Soporte Básico"],
+      status: "active",
+    },
+    {
+      id: 2,
+      name: "🥈 Profesional",
+      price: 29.99,
+      currency: "USD",
+      features: [
+        "Hasta 500 Productos",
+        "5 Usuarios",
+        "Facturación",
+        "Soporte Prioritario",
+      ],
+      status: "active",
+    },
+    {
+      id: 3,
+      name: "🥇 Premium",
+      price: 99.99,
+      currency: "USD",
+      features: [
+        "Productos Ilimitados",
+        "Usuarios Ilimitados",
+        "API Access",
+        "Soporte 24/7",
+      ],
+      status: "active",
+    },
+  ],
+  notifications: {
+    admin: { userExpiring: true, userSuspended: true },
+    user: { closeCutoff: true, suspended: true },
+    channels: { system: true, email: false },
+  },
+  systemConfig: {
+    currency: "USD",
+    symbol: "$",
+    taxCookies: true,
+    taxRate: 16,
+    themeColor: "#7c3aed",
+    dateFormat: "DD/MM/YYYY",
+    timezone: "America/Caracas",
+    limits: { maxProducts: 500, maxClients: 100 },
+  },
 };
 
 let data = { ...defaults };
@@ -67,6 +119,9 @@ module.exports = {
   backupLogs: data.backupLogs,
   backupSchedule: data.backupSchedule,
   auditLogs: data.auditLogs,
+  plans: data.plans,
+  notifications: data.notifications,
+  systemConfig: data.systemConfig,
   backupStorageCapacityBytes,
   save,
 };

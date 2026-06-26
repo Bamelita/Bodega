@@ -8,4 +8,24 @@ router.get("/audit", (req, res) => {
   res.json(logs);
 });
 
+router.get("/notifications", (req, res) => {
+  res.json(store.notifications);
+});
+
+router.patch("/notifications", (req, res) => {
+  store.notifications = { ...store.notifications, ...req.body };
+  store.save();
+  res.json(store.notifications);
+});
+
+router.get("/system", (req, res) => {
+  res.json(store.systemConfig);
+});
+
+router.patch("/system", (req, res) => {
+  store.systemConfig = { ...store.systemConfig, ...req.body };
+  store.save();
+  res.json(store.systemConfig);
+});
+
 module.exports = router;

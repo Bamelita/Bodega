@@ -9,6 +9,7 @@ let {
   products,
   movements,
   customers,
+  save,
 } = require("../data/store");
 
 // Backup API
@@ -97,6 +98,7 @@ router.post("/restore", (req, res) => {
     message: `Sistema restaurado desde ${b.name}`,
     backupId: b.id,
   });
+  save(); // Persist the restored data to disk
   res.json({ message: "Sistema restaurado", backupId: b.id });
 });
 

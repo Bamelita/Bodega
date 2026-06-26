@@ -1,14 +1,7 @@
 const express = require("express");
 const router = express.Router();
 let { customers, save } = require("../data/store");
-const { createClient } = require("@supabase/supabase-js");
-
-const SUPABASE_URL = process.env.SUPABASE_URL || null;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || null;
-const hasSupabase = !!(SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY);
-const supabase = hasSupabase
-  ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
-  : null;
+const { supabase, hasSupabase } = require("../config/supabaseClient");
 
 // Customers CRUD
 
@@ -47,12 +40,27 @@ router.post("/", async (req, res) => {
       .json({ message: "Nombre y apellido son requeridos" });
   }
 
+  // Initialize debt fields if debt is enabled
+  let finalDebt = debt || { enabled: false };
+  if (finalDebt.enabled) {
+    const parts = Number(finalDebt.parts || 0);
+    const amount = Number(finalDebt.installmentAmount || 0);
+    const total = parts * amount;
+    finalDebt = {
+      ...finalDebt,
+      totalDebt: total,
+      currentDebt: total,
+      payments: [],
+      startDate: new Date().toISOString()
+    };
+  }
+
   const newCustomerObj = {
     firstName,
     lastName,
     cedula: cedula || "",
     phone: phone || "",
-    debt: debt || { enabled: false },
+    debt: finalDebt,
     specialOrder: specialOrder || { enabled: false },
     createdAt: new Date().toISOString(),
   };
@@ -90,25 +98,60 @@ router.put("/:id", async (req, res) => {
   const id = parseInt(req.params.id);
   const updates = req.body;
 
-  if (!hasSupabase) {
-    const idx = customers.findIndex((c) => c.id === id);
-    if (idx === -1) {
-      return res.status(404).json({ message: "Cliente no encontrado" });
-    }
-    customers[idx] = { ...customers[idx], ...updates, id };
-    // Deep merge for nested objects if needed, but simplistic replacement is often okay for full updates
-    // The frontend sends the full object structure usually.
-    save(); // Persist changes
-    return res.json(customers[idx]);
-  }
-
   try {
+    // Check if we need to update debt calculations
+    let safeUpdates = updates;
+    if (updates.debt) {
+      // In Supabase mode, we need the current record to keep payment history
+      let currentRecord = null;
+      if (!hasSupabase) {
+        const idx = customers.findIndex((c) => c.id === id);
+        if (idx === -1) return res.status(404).json({ message: "Cliente no encontrado" });
+        currentRecord = customers[idx];
+      } else {
+        const { data, error } = await supabase.from("customers").select("*").eq("id", id).single();
+        if (error || !data) return res.status(404).json({ message: "Cliente no encontrado" });
+        currentRecord = data;
+      }
+
+      let finalDebt = { ...updates.debt };
+      if (finalDebt.enabled) {
+        const parts = Number(finalDebt.parts || 0);
+        const amount = Number(finalDebt.installmentAmount || 0);
+        const total = parts * amount;
+        
+        // Preserve payments and startDate
+        const existingPayments = currentRecord.debt?.payments || [];
+        const totalPaid = existingPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
+        const startDate = currentRecord.debt?.startDate || new Date().toISOString();
+        
+        finalDebt = {
+          ...finalDebt,
+          totalDebt: total,
+          currentDebt: Math.max(0, total - totalPaid),
+          payments: existingPayments,
+          startDate
+        };
+      } else {
+        // If disabled, reset to 0 but maybe preserve history if needed? We will just clear it.
+        finalDebt = { enabled: false, parts: 0, installmentAmount: 0, totalDebt: 0, currentDebt: 0, payments: [] };
+      }
+      safeUpdates = { ...safeUpdates, debt: finalDebt };
+    }
+
+    if (!hasSupabase) {
+      const idx = customers.findIndex((c) => c.id === id);
+      customers[idx] = { ...customers[idx], ...safeUpdates, id };
+      save(); // Persist changes
+      return res.json(customers[idx]);
+    }
+
     // Exclude id from updates if present
-    const { id: _, ...safeUpdates } = updates;
+    const { id: _, ...supabaseUpdates } = safeUpdates;
 
     const { data, error } = await supabase
       .from("customers")
-      .update(safeUpdates)
+      .update(supabaseUpdates)
       .eq("id", id)
       .select()
       .single();
@@ -154,3 +197,151 @@ router.delete("/:id", async (req, res) => {
 });
 
 module.exports = router;
+
+// POST /api/customers/:id/payments
+router.post("/:id/payments", async (req, res) => {
+  const id = parseInt(req.params.id);
+  const { amount, note } = req.body;
+
+  if (!amount || amount <= 0) {
+    return res.status(400).json({ message: "Monto inválido" });
+  }
+
+  try {
+    let currentRecord = null;
+    if (!hasSupabase) {
+      const idx = customers.findIndex((c) => c.id === id);
+      if (idx === -1) return res.status(404).json({ message: "Cliente no encontrado" });
+      currentRecord = customers[idx];
+    } else {
+      const { data, error } = await supabase.from("customers").select("*").eq("id", id).single();
+      if (error || !data) return res.status(404).json({ message: "Cliente no encontrado" });
+      currentRecord = data;
+    }
+
+    if (!currentRecord.debt || !currentRecord.debt.enabled) {
+      return res.status(400).json({ message: "El cliente no tiene deuda activa" });
+    }
+
+    const newPayment = {
+      id: Date.now().toString(),
+      date: new Date().toISOString(),
+      amount: Number(amount),
+      note: note || ""
+    };
+
+    const existingPayments = currentRecord.debt.payments || [];
+    const updatedPayments = [newPayment, ...existingPayments];
+    const totalPaid = updatedPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
+    
+    let totalDebt = currentRecord.debt.totalDebt;
+    if (totalDebt === undefined) {
+      totalDebt = (Number(currentRecord.debt.parts || 0) * Number(currentRecord.debt.installmentAmount || 0));
+    }
+    
+    const newCurrentDebt = Math.max(0, totalDebt - totalPaid);
+
+    const updatedDebt = {
+      ...currentRecord.debt,
+      totalDebt,
+      currentDebt: newCurrentDebt,
+      payments: updatedPayments
+    };
+
+    if (!hasSupabase) {
+      const idx = customers.findIndex((c) => c.id === id);
+      customers[idx].debt = updatedDebt;
+      save();
+      return res.json(customers[idx]);
+    }
+
+    const { data, error } = await supabase
+      .from("customers")
+      .update({ debt: updatedDebt })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      return res.status(500).json({ message: "Error registrando pago", detail: error.message });
+    }
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ message: "Error interno", detail: err.message });
+  }
+});
+
+// POST /api/customers/:id/complete-order
+router.post("/:id/complete-order", async (req, res) => {
+  const id = parseInt(req.params.id);
+  const { paidInFull, pendingAmount } = req.body;
+
+  try {
+    let currentRecord = null;
+    if (!hasSupabase) {
+      const idx = customers.findIndex((c) => c.id === id);
+      if (idx === -1) return res.status(404).json({ message: "Cliente no encontrado" });
+      currentRecord = customers[idx];
+    } else {
+      const { data, error } = await supabase.from("customers").select("*").eq("id", id).single();
+      if (error || !data) return res.status(404).json({ message: "Cliente no encontrado" });
+      currentRecord = data;
+    }
+
+    if (!currentRecord.specialOrder || !currentRecord.specialOrder.enabled) {
+      return res.status(400).json({ message: "El cliente no tiene un encargo activo" });
+    }
+
+    let updatedDebt = currentRecord.debt || { enabled: false };
+
+    if (!paidInFull) {
+      const amountToAdd = Number(pendingAmount) || 0;
+      if (amountToAdd > 0) {
+        if (updatedDebt.enabled) {
+          updatedDebt = {
+            ...updatedDebt,
+            totalDebt: (updatedDebt.totalDebt || 0) + amountToAdd,
+            currentDebt: (updatedDebt.currentDebt || 0) + amountToAdd
+          };
+        } else {
+          updatedDebt = {
+            enabled: true,
+            parts: 1,
+            installmentAmount: amountToAdd,
+            frequency: 'semanal',
+            totalDebt: amountToAdd,
+            currentDebt: amountToAdd,
+            payments: []
+          };
+        }
+      }
+    }
+
+    const updatedSpecialOrder = {
+      ...currentRecord.specialOrder,
+      enabled: false
+    };
+
+    if (!hasSupabase) {
+      const idx = customers.findIndex((c) => c.id === id);
+      customers[idx].debt = updatedDebt;
+      customers[idx].specialOrder = updatedSpecialOrder;
+      save();
+      return res.json(customers[idx]);
+    }
+
+    const { data, error } = await supabase
+      .from("customers")
+      .update({ debt: updatedDebt, specialOrder: updatedSpecialOrder })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      return res.status(500).json({ message: "Error completando encargo", detail: error.message });
+    }
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ message: "Error interno", detail: err.message });
+  }
+});

@@ -3,7 +3,7 @@
     {
       "id": 1,
       "username": "admin",
-      "password": "admin123",
+      "password": "$2b$10$wn3JGxYAAUaLiGHaWGqWUuG3RPvzsdSq5z/iHfLAxp41K4wgllDoK",
       "role": "admin",
       "firstName": "System",
       "lastName": "Admin",
@@ -19,7 +19,7 @@
     {
       "id": 2,
       "username": "user",
-      "password": "user123",
+      "password": "$2b$10$ChC4mqrf/XJ0Hv68a.MxBu4aI9M1lH.TVLe8rnxnXz0ffbzx5X5f2",
       "role": "user",
       "firstName": "Vendedor",
       "lastName": "Demo",
@@ -19197,10 +19197,20 @@
       "cedula": "14973014",
       "phone": "555-4500",
       "debt": {
-        "enabled": false,
-        "parts": 0,
-        "installmentAmount": 0,
-        "frequency": null
+        "enabled": true,
+        "parts": 4,
+        "installmentAmount": 12,
+        "frequency": "quincenal",
+        "currentDebt": 38,
+        "payments": [
+          {
+            "id": "1782371581896",
+            "date": "2026-06-25T07:13:01.896Z",
+            "amount": 10,
+            "note": "pago movil banesco"
+          }
+        ],
+        "totalDebt": 48
       },
       "specialOrder": {
         "enabled": false,
@@ -19287,10 +19297,10 @@
         "frequency": null
       },
       "specialOrder": {
-        "enabled": false,
-        "product": "",
-        "payInAdvance": false,
-        "advanceAmount": 0,
+        "enabled": true,
+        "product": "la que manda",
+        "payInAdvance": true,
+        "advanceAmount": 10,
         "notes": ""
       },
       "createdAt": "2025-03-22T19:40:13.764Z"
@@ -47136,5 +47146,73 @@
       "admin": "admin",
       "date": "2025-03-02T14:27:01.220Z"
     }
-  ]
+  ],
+  "supportMessages": [],
+  "plans": [
+    {
+      "id": 1,
+      "name": "🥉 Básico",
+      "price": 9.99,
+      "currency": "USD",
+      "features": [
+        "Hasta 50 Productos",
+        "1 Usuario",
+        "Soporte Básico"
+      ],
+      "status": "active"
+    },
+    {
+      "id": 2,
+      "name": "🥈 Profesional",
+      "price": 29.99,
+      "currency": "USD",
+      "features": [
+        "Hasta 500 Productos",
+        "5 Usuarios",
+        "Facturación",
+        "Soporte Prioritario"
+      ],
+      "status": "active"
+    },
+    {
+      "id": 3,
+      "name": "🥇 Premium",
+      "price": 99.99,
+      "currency": "USD",
+      "features": [
+        "Productos Ilimitados",
+        "Usuarios Ilimitados",
+        "API Access",
+        "Soporte 24/7"
+      ],
+      "status": "active"
+    }
+  ],
+  "notifications": {
+    "admin": {
+      "userExpiring": true,
+      "userSuspended": true
+    },
+    "user": {
+      "closeCutoff": true,
+      "suspended": true
+    },
+    "channels": {
+      "system": true,
+      "email": false
+    }
+  },
+  "systemConfig": {
+    "currency": "USD",
+    "symbol": "$",
+    "taxCookies": true,
+    "taxRate": 16,
+    "themeColor": "#7c3aed",
+    "dateFormat": "DD/MM/YYYY",
+    "timezone": "America/Caracas",
+    "limits": {
+      "maxProducts": 500,
+      "maxClients": 100
+    }
+  }
 }

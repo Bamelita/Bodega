@@ -1,12 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation, Outlet, Navigate } from 'react-router-dom';
+import { Link, useLocation, Outlet, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Menu, X } from 'lucide-react';
 import BrandIcon from '../components/BrandIcon';
+import AlertsDropdown from '../components/AlertsDropdown';
+import AiAssistant from '../components/AiAssistant';
 
 const Layout = () => {
   const { user, logout, loading } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    return localStorage.getItem('sidebarCollapsed') === 'true';
+  });
+  const [globalSearch, setGlobalSearch] = useState('');
+
+  const toggleCollapse = () => {
+    const nextState = !isCollapsed;
+    setIsCollapsed(nextState);
+    localStorage.setItem('sidebarCollapsed', nextState.toString());
+  };
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -19,13 +34,17 @@ const Layout = () => {
 
   const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');
 
+  // Close sidebar on route change
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
+
   if (loading || (typeof loading === 'undefined' && !user)) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--purple)]"></div>
       </div>
     );
-
   }
   if (!user && !loading) return <Navigate to="/login" />;
 
@@ -34,28 +53,53 @@ const Layout = () => {
   // We map the route names to what is displayed in the topbar
   const getPageTitle = () => {
     switch(location.pathname) {
-      case '/admin': return 'Dashboard';
-      case '/admin/inventory': return 'Productos';
-      case '/admin/sales': return 'Movimientos';
-      case '/admin/clients': return 'Clientes';
-      case '/admin/reports': return 'Reportes';
-      case '/admin/settings': return 'Configuración';
-      case '/admin/audit': return 'Auditoría';
-      case '/admin/support': return 'Soporte';
-      default: return 'Bodega';
+      case '/admin':           return 'Panel de Administración';
+      case '/admin/settings':  return 'Configuración';
+      case '/admin/profile':   return 'Mi Perfil';
+      case '/admin/security':  return 'Seguridad';
+      case '/admin/billing':   return 'Planes y Facturación';
+      case '/admin/backups':   return 'Copias de Seguridad';
+      case '/admin/audit':     return 'Auditoría';
+      case '/admin/support':   return 'Soporte';
+      case '/user':            return 'Panel de Control';
+      case '/user/inventory':  return 'Inventario';
+      case '/user/sales':      return 'Ventas';
+      case '/user/clients':    return 'Clientes';
+      case '/user/reports':    return 'Reportes';
+      case '/user/backups':    return 'Copias de Seguridad';
+      default: return 'Invexis';
+    }
+  };
+
+  const handleGlobalSearch = (e) => {
+    e.preventDefault();
+    if (globalSearch.trim()) {
+      navigate(`/user/inventory?search=${encodeURIComponent(globalSearch.trim())}`);
+      setGlobalSearch('');
     }
   };
 
   return (
     <>
-      <aside className="sidebar">
+      <div className={`sidebar-overlay ${sidebarOpen ? 'show' : ''}`} onClick={() => setSidebarOpen(false)}></div>
+      <aside className={`sidebar ${sidebarOpen ? 'open' : ''} ${isCollapsed ? 'collapsed' : ''}`}>
         <div className="brand">
-          <div className="brand-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><polyline points="9 22 9 12 15 12 15 22"/>
-            </svg>
+          <div className="flex items-center justify-between">
+            <div className="brand-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+            </div>
+            <div className="flex gap-2">
+              <button className="mobile-close-btn hidden lg:flex hover:bg-[var(--glass-white)] p-1 rounded-md transition-colors" onClick={toggleCollapse} title="Colapsar/Expandir Menú">
+                <Menu size={20} className="text-[var(--ink)]" />
+              </button>
+              <button className="mobile-close-btn lg:hidden" onClick={() => setSidebarOpen(false)}>
+                <X size={20} className="text-[var(--muted)]" />
+              </button>
+            </div>
           </div>
-          <div className="brand-name">Bodega</div>
+          <div className="brand-name">Invexis</div>
           <div className="brand-sub">Gestión de Inventario</div>
         </div>
 
@@ -71,9 +115,9 @@ const Layout = () => {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
                 Planes y Facturación
               </Link>
-              <Link to="/admin/audit" className={`nav-item ${isActive('/admin/audit') ? 'active' : ''}`}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                Auditoría
+              <Link to="/admin/support" className={`nav-item ${isActive('/admin/support') ? 'active' : ''}`}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                Reportes / Soporte
               </Link>
               <Link to="/admin/backups" className={`nav-item ${isActive('/admin/backups') ? 'active' : ''}`}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -107,6 +151,10 @@ const Layout = () => {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
                 Reportes
               </Link>
+              <Link to="/user/support" className={`nav-item ${isActive('/user/support') ? 'active' : ''}`}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                Soporte
+              </Link>
               <Link to="/user/backups" className={`nav-item ${isActive('/user/backups') ? 'active' : ''}`}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 Copias de Seguridad
@@ -129,12 +177,24 @@ const Layout = () => {
         </div>
       </aside>
 
-      <div className="main">
+      <div className={`main ${isCollapsed ? 'collapsed' : ''}`}>
         <div className="topbar">
-          <div className="search-wrap">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            <input type="text" placeholder="Buscar producto, SKU, usuario…" />
-          </div>
+          <button className="mobile-menu-btn lg:hidden" onClick={() => setSidebarOpen(true)}>
+            <Menu size={24} className="text-[var(--ink)]" />
+          </button>
+          
+          {user?.role !== 'admin' && (
+            <form className="search-wrap hidden md:flex" onSubmit={handleGlobalSearch}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input 
+                type="text" 
+                placeholder="Buscar en inventario..." 
+                value={globalSearch}
+                onChange={(e) => setGlobalSearch(e.target.value)}
+              />
+            </form>
+          )}
+
           <div className="topbar-title">{getPageTitle()}</div>
           <div className="topbar-actions">
             <div className="icon-pill" onClick={toggleTheme} style={{ cursor: 'pointer' }} title={theme === 'light' ? 'Modo Oscuro' : 'Modo Claro'}>
@@ -144,14 +204,7 @@ const Layout = () => {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
               )}
             </div>
-            <Link to="/admin/audit" className="icon-pill notif-dot" style={{ textDecoration: 'none' }}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-              Alertas
-            </Link>
-            <div className="icon-pill primary" style={{ cursor: 'pointer' }}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
-              <span>Nuevo</span>
-            </div>
+            <AlertsDropdown />
           </div>
         </div>
 
@@ -159,6 +212,7 @@ const Layout = () => {
           <Outlet />
         </div>
       </div>
+      <AiAssistant />
     </>
   );
 };

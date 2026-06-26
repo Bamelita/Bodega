@@ -27,7 +27,7 @@ const AdminBilling = () => {
                 api.get('/users')
             ]);
             setPlans(plansRes.data);
-            setUsers(usersRes.data);
+            setUsers(usersRes.data.filter(u => u.role !== 'admin'));
         } catch (error) {
             console.error(error);
         } finally {

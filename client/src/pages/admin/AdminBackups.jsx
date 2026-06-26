@@ -39,14 +39,12 @@ const AdminBackups = () => {
       <div className="section-header mb-3">
         <div className="section-title flex items-center gap-2">
           <Database size={20} className="text-[var(--purple)]" />
-          Respaldos del Sistema
+          <span>Respaldos del Sistema <small>Crea, restaura y gestiona las copias de seguridad de la base de datos.</small></span>
         </div>
         <button onClick={handleCreate} disabled={creating} className="btn btn-primary">
           <Database size={16} /> {creating ? 'Creando...' : 'Crear Respaldo'}
         </button>
       </div>
-
-      <p className="text-[var(--muted)] text-sm mb-4">Crea, restaura y gestiona las copias de seguridad de la base de datos.</p>
 
       {status.message && (
         <div className={`alert-banner mb-3 ${status.type === 'success' ? '!bg-[var(--success-bg)] !text-[var(--success)] !border-[var(--success)]' : 'alert-danger'}`}>

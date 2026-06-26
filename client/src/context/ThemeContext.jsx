@@ -1,6 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../config/api';
 
+export const THEMES = [
+  { name: 'Morado', color: '#7c3aed', light: '#a78bfa' },
+  { name: 'Azul', color: '#2563eb', light: '#60a5fa' },
+  { name: 'Esmeralda', color: '#059669', light: '#34d399' },
+  { name: 'Rosa', color: '#db2777', light: '#f472b6' },
+  { name: 'Naranja', color: '#ea580c', light: '#fb923c' },
+];
+
 const ThemeContext = createContext(null);
 
 export const ThemeProvider = ({ children }) => {
@@ -12,7 +20,7 @@ export const ThemeProvider = ({ children }) => {
     return false;
   });
 
-  const [themeColor, setThemeColor] = useState('#2563eb'); // Default blue
+  const [themeColor, setThemeColor] = useState(THEMES[0].color); // Default purple
 
   // Initialize Color from API or LocalStorage
   useEffect(() => {
@@ -57,9 +65,9 @@ export const ThemeProvider = ({ children }) => {
 
   // Apply Theme Color to CSS Variable
   useEffect(() => {
-    document.documentElement.style.setProperty('--primary-color', themeColor);
-    // Optionally create slight variations if needed by tailwind config, 
-    // but for now let's just set the main one.
+    const selected = THEMES.find(t => t.color === themeColor) || THEMES[0];
+    document.documentElement.style.setProperty('--purple', selected.color);
+    document.documentElement.style.setProperty('--purple-light', selected.light);
     localStorage.setItem('themeColor', themeColor);
   }, [themeColor]);
 

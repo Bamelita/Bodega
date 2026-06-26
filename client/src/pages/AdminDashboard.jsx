@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import api from '../config/api';
 import { useTheme } from '../context/ThemeContext';
-import { Users, UserPlus, Search, Edit, Trash2, Save, X, AlertTriangle, Bell } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
+import { Users, UserPlus, Search, Edit, Trash2, Save, X, AlertTriangle, Bell, Eye, EyeOff } from 'lucide-react';
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   // Removed showModal state
-  const { darkMode, toggleTheme } = useTheme();
+  // Removed showModal state
+  const toast = useToast();
   const [notifications, setNotifications] = useState([]);
+  const [confirmDelete, setConfirmDelete] = useState(null); // userId pending confirmation
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -24,6 +27,7 @@ const AdminDashboard = () => {
     cutoffDate: ''
   });
   const [editingId, setEditingId] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -32,8 +36,10 @@ const AdminDashboard = () => {
   const fetchUsers = async () => {
     try {
       const res = await api.get('/users');
-      setUsers(res.data);
-      checkNotifications(res.data);
+      // Filter out admin users so they don't show in the dashboard
+      const filteredUsers = res.data.filter(u => u.role !== 'admin');
+      setUsers(filteredUsers);
+      checkNotifications(filteredUsers);
     } catch (error) {
       console.error('Error fetching users', error);
     } finally {
@@ -66,15 +72,15 @@ const AdminDashboard = () => {
     try {
       if (editingId) {
         await api.put(`/users/${editingId}`, formData);
+        toast.success('Usuario actualizado correctamente');
       } else {
         await api.post('/users', formData);
+        toast.success('Usuario creado correctamente');
       }
-
-      // Removed setShowModal(false)
       fetchUsers();
       resetForm();
     } catch (error) {
-      alert('Error al guardar usuario');
+      toast.error(error.response?.data?.message || 'Error al guardar usuario');
     }
   };
 
@@ -90,13 +96,18 @@ const AdminDashboard = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('¿Estás seguro de eliminar este usuario?')) {
-      try {
-        await api.delete(`/users/${id}`);
-        fetchUsers();
-      } catch (error) {
-        alert('Error al eliminar usuario');
-      }
+    setConfirmDelete(id);
+  };
+
+  const confirmDeleteUser = async () => {
+    try {
+      await api.delete(`/users/${confirmDelete}`);
+      toast.success('Usuario eliminado');
+      fetchUsers();
+    } catch (error) {
+      toast.error('Error al eliminar usuario');
+    } finally {
+      setConfirmDelete(null);
     }
   };
 
@@ -120,6 +131,35 @@ const AdminDashboard = () => {
 
   return (
     <div className="page active">
+
+      {/* Confirm Delete Dialog */}
+      {confirmDelete && (
+        <div className="overlay show" onClick={() => setConfirmDelete(null)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '380px' }}>
+            <div className="modal-header">
+              <h3 className="modal-title" style={{ color: 'var(--danger)' }}>
+                <Trash2 size={16} /> Eliminar Usuario
+              </h3>
+              <button className="modal-close" onClick={() => setConfirmDelete(null)}>✕</button>
+            </div>
+            <div className="modal-body">
+              <p style={{ color: 'var(--ink2)', fontSize: '0.9rem' }}>
+                ¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.
+              </p>
+            </div>
+            <div className="modal-footer" style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', padding: '1rem 1.25rem' }}>
+              <button className="btn btn-ghost" onClick={() => setConfirmDelete(null)}>Cancelar</button>
+              <button
+                className="btn btn-primary"
+                style={{ background: 'var(--danger)', borderColor: 'var(--danger)' }}
+                onClick={confirmDeleteUser}
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Notifications Area */}
       {notifications.length > 0 && (
@@ -157,8 +197,22 @@ const AdminDashboard = () => {
                 <input type="text" required value={formData.username} onChange={e => setFormData({ ...formData, username: e.target.value })} />
               </div>
               <div className="field">
-                <label>Contraseña {editingId && '(Dejar vacío para mantener)'}</label>
-                <input type="password" required={!editingId} value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })} />
+                <label>Clave {editingId && <small className="text-[var(--muted)] font-normal ml-1">(Opcional)</small>}</label>
+                <div className="relative">
+                  <input 
+                    type={showPassword ? "text" : "password"} 
+                    required={!editingId} 
+                    value={formData.password} 
+                    onChange={e => setFormData({ ...formData, password: e.target.value })} 
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted)] hover:text-[var(--ink)] transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
               <div className="field">
                 <label>Nombre</label>

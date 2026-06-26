@@ -99,8 +99,25 @@ const UserDashboard = () => {
     }
   };
 
-  // KPIs
-  const totalSalesToday = 120.50; // Mock calculation or from history
+  // KPIs — all calculated from real data
+  const todayStr = new Date().toDateString();
+
+  const totalSalesToday = data.movements
+    .filter(m => m.type === 'OUT' && new Date(m.date).toDateString() === todayStr)
+    .reduce((acc, m) => {
+      const prod = data.products.find(p => p.id === m.productId);
+      return acc + (prod?.price || 0) * m.quantity;
+    }, 0);
+
+  // Top product by total units sold (all time)
+  const salesByProduct = {};
+  data.movements.filter(m => m.type === 'OUT').forEach(m => {
+    salesByProduct[m.productName] = (salesByProduct[m.productName] || 0) + m.quantity;
+  });
+  const topProductEntry = Object.entries(salesByProduct).sort((a, b) => b[1] - a[1])[0];
+  const topProductName  = topProductEntry ? topProductEntry[0] : (data.products[0]?.name || '—');
+  const topProductUnits = topProductEntry ? topProductEntry[1] : 0;
+
   const pendingPayments = data.customers.reduce((acc, c) => acc + (c.debt?.currentDebt || 0), 0);
   const debtClients = data.customers.filter(c => c.debt?.currentDebt > 0).length;
 
@@ -138,14 +155,17 @@ const UserDashboard = () => {
         <div className="stat-card green">
           <div className="stat-icon"><DollarSign /></div>
           <div className="stat-label">Ventas del Día</div>
-          <div className="stat-value">${totalSalesToday}</div>
-          <div className="stat-sub flex items-center gap-1 text-success"><TrendingUp size={14}/> +12% vs ayer</div>
+          <div className="stat-value">${totalSalesToday.toFixed(2)}</div>
+          <div className="stat-sub flex items-center gap-1 text-success">
+            {totalSalesToday > 0 ? <TrendingUp size={14}/> : <TrendingDown size={14}/>}
+            {totalSalesToday > 0 ? 'Ventas registradas hoy' : 'Sin ventas hoy'}
+          </div>
         </div>
         <div className="stat-card pink">
           <div className="stat-icon"><Package /></div>
           <div className="stat-label">Top Producto</div>
-          <div className="stat-value truncate" style={{fontSize: '1.4rem'}}>Arroz 1kg</div>
-          <div className="stat-sub">45 unidades vendidas</div>
+          <div className="stat-value truncate" style={{fontSize: '1.4rem'}}>{topProductName}</div>
+          <div className="stat-sub">{topProductUnits} unidades vendidas</div>
         </div>
         <div className="stat-card peach">
           <div className="stat-icon"><CreditCard /></div>
@@ -278,17 +298,20 @@ const UserDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {data.customers.filter(c => c.debt?.currentDebt > 0).slice(0, 5).map(c => (
+                {data.customers.filter(c => c.debt?.currentDebt > 0).slice(0, 5).map(c => {
+                  const startDate = c.debt?.startDate || new Date().toISOString(); // Fallback to now if missing
+                  const days = Math.floor((new Date() - new Date(startDate)) / (1000 * 60 * 60 * 24));
+                  return (
                   <tr key={c.id}>
                     <td>{c.firstName} {c.lastName}</td>
                     <td className="mono fw-8">${c.debt.currentDebt}</td>
                     <td>
-                      <span className={`badge ${c.debt.daysOverdue > 7 ? 'badge-out' : 'badge-low'}`}>
-                        {c.debt.daysOverdue} días
+                      <span className={`badge ${days > 7 ? 'badge-out' : 'badge-low'}`}>
+                        {days} {days === 1 ? 'día' : 'días'}
                       </span>
                     </td>
                   </tr>
-                ))}
+                )})}
                 {data.customers.filter(c => c.debt?.currentDebt > 0).length === 0 && (
                   <tr><td colSpan="3" className="text-center text-[var(--muted)] py-4">No hay deudas pendientes</td></tr>
                 )}

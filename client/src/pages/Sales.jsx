@@ -1,12 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ShoppingCart, PlusCircle, Trash2, Edit2, Save } from 'lucide-react';
+import { ShoppingCart, PlusCircle, Trash2, Edit2, Save, AlertTriangle } from 'lucide-react';
 import api from '../config/api';
+import { useToast } from '../context/ToastContext';
+import { TableSkeleton } from '../components/Skeleton';
 
 const Sales = () => {
   const [products, setProducts] = useState([]);
   const [movements, setMovements] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const toast = useToast();
+  const [confirmDialog, setConfirmDialog] = useState(null);
 
   const [singleSale, setSingleSale] = useState({ productId: '', quantity: 1 });
   const [batchItems, setBatchItems] = useState([{ productId: '', quantity: 1 }]);
@@ -26,7 +29,7 @@ const Sales = () => {
       setProducts(pRes.data);
       setMovements(mRes.data);
     } catch (e) {
-      setMessage('Error cargando datos');
+      toast.error('Error cargando datos');
     } finally {
       setLoading(false);
     }
@@ -39,7 +42,6 @@ const Sales = () => {
   const handleSingleSubmit = async (e) => {
     e.preventDefault();
     if (loading) return;
-    setMessage('');
     setLoading(true);
     try {
       const payload = { productId: Number(singleSale.productId), quantity: Number(singleSale.quantity) };
@@ -47,10 +49,10 @@ const Sales = () => {
       setMovements(prev => [res.data.movement, ...prev]);
       setProducts(prev => prev.map(p => p.id === res.data.product.id ? res.data.product : p));
       setSingleSale({ productId: '', quantity: 1 });
-      setMessage('Venta registrada');
+      toast.success('Venta registrada');
     } catch (err) {
       const msg = err?.response?.data?.message || 'Error registrando venta';
-      setMessage(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -59,24 +61,24 @@ const Sales = () => {
   const handleBatchSubmit = async (e) => {
     e.preventDefault();
     if (loading) return;
-    setMessage('');
     setLoading(true);
     try {
       const validItems = batchItems
         .filter(i => i.productId && i.quantity > 0)
         .map(i => ({ productId: Number(i.productId), quantity: Number(i.quantity) }));
       if (validItems.length === 0) {
-        setMessage('Agrega al menos un item válido');
+        toast.warning('Agrega al menos un item válido');
+        setLoading(false);
         return;
       }
       const res = await api.post('/sales/batch', { items: validItems });
       // update products by refetch to keep stocks accurate
       await fetchData();
       setBatchItems([{ productId: '', quantity: 1 }]);
-      setMessage(`Ventas registradas: ${res.data.movements.length}`);
+      toast.success(`Ventas registradas: ${res.data.movements.length}`);
     } catch (err) {
       const msg = err?.response?.data?.message || 'Error registrando ventas múltiples';
-      setMessage(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -105,10 +107,9 @@ const Sales = () => {
       // update related product stock
       setProducts(prev => prev.map(p => p.id === res.data.product.id ? res.data.product : p));
       setEditingId(null);
-      setMessage('Movimiento actualizado');
     } catch (err) {
       const msg = err?.response?.data?.message || 'Error actualizando movimiento';
-      setMessage(msg);
+      toast.error(msg);
     }
   };
   const deleteMovement = async (mv) => {
@@ -120,11 +121,22 @@ const Sales = () => {
       if (updated) {
         setProducts(prev => prev.map(p => p.id === updated.id ? updated : p));
       }
-      setMessage('Movimiento eliminado');
+      toast.success('Movimiento eliminado');
     } catch (err) {
       const msg = err?.response?.data?.message || 'Error eliminando movimiento';
-      setMessage(msg);
+      toast.error(msg);
     }
+  };
+
+  const confirmDelete = (mv) => {
+    setConfirmDialog({
+      title: 'Eliminar movimiento',
+      desc: `¿Estás seguro de que deseas eliminar este movimiento?`,
+      onConfirm: () => {
+        deleteMovement(mv);
+        setConfirmDialog(null);
+      }
+    });
   };
 
   return (
@@ -132,8 +144,6 @@ const Sales = () => {
       <div className="section-header mb-3">
         <div className="section-title">Punto de Venta</div>
       </div>
-
-      {message && <div className="alert-banner alert-warning mb-3">{message}</div>}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
         <div className="card">
@@ -247,69 +257,92 @@ const Sales = () => {
         <div className="card-header">
           <div className="card-title">Movimientos</div>
         </div>
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Tipo</th>
-                <th>Producto</th>
-                <th>Cantidad</th>
-                <th>Fecha</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {movements.map(mv => (
-                <tr key={mv.id}>
-                  <td className="mono text-[var(--muted)]">{mv.id}</td>
-                  <td>
-                    <span className={`badge ${mv.type === 'OUT' ? 'badge-out' : 'badge-in'}`}>
-                      {mv.type === 'OUT' ? 'VENTA' : 'ENTRADA'}
-                    </span>
-                  </td>
-                  <td className="fw-8">{mv.productName}</td>
-                  <td>
-                    {editingId === mv.id ? (
-                      <input
-                        type="number"
-                        min={1}
-                        value={editingQty}
-                        onChange={(e) => setEditingQty(e.target.value)}
-                        className="w-20 rounded bg-[var(--glass-white)] border border-[var(--glass-border)] px-2 py-1 outline-none"
-                      />
-                    ) : (
-                      <span className="mono fw-8">{mv.quantity}</span>
-                    )}
-                  </td>
-                  <td>{new Date(mv.date).toLocaleString()}</td>
-                  <td>
-                    <div className="td-actions">
-                      {editingId === mv.id ? (
-                        <button onClick={() => saveEdit(mv)} className="action-btn text-[var(--success)] hover:bg-[var(--success)]/10">
-                          <Save size={14} />
-                        </button>
-                      ) : (
-                        <button onClick={() => startEdit(mv)} className="action-btn edit">
-                          <Edit2 size={14} />
-                        </button>
-                      )}
-                      <button onClick={() => deleteMovement(mv)} className="action-btn del">
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {movements.length === 0 && (
+        {loading ? (
+          <TableSkeleton columns={6} />
+        ) : (
+          <div className="table-wrap">
+            <table>
+              <thead>
                 <tr>
-                  <td colSpan="6" className="text-center py-8 text-[var(--muted)]">No hay movimientos registrados</td>
+                  <th>ID</th>
+                  <th>Tipo</th>
+                  <th>Producto</th>
+                  <th>Cantidad</th>
+                  <th>Fecha</th>
+                  <th>Acciones</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {movements.map(mv => (
+                  <tr key={mv.id}>
+                    <td className="mono text-[var(--muted)]">{mv.id}</td>
+                    <td>
+                      <span className={`badge ${mv.type === 'OUT' ? 'badge-out' : 'badge-in'}`}>
+                        {mv.type === 'OUT' ? 'VENTA' : 'ENTRADA'}
+                      </span>
+                    </td>
+                    <td className="fw-8">{mv.productName}</td>
+                    <td>
+                      {editingId === mv.id ? (
+                        <input
+                          type="number"
+                          min={1}
+                          value={editingQty}
+                          onChange={(e) => setEditingQty(e.target.value)}
+                          className="w-20 rounded bg-[var(--glass-white)] border border-[var(--glass-border)] px-2 py-1 outline-none"
+                        />
+                      ) : (
+                        <span className="mono fw-8">{mv.quantity}</span>
+                      )}
+                    </td>
+                    <td>{new Date(mv.date).toLocaleString()}</td>
+                    <td>
+                      <div className="td-actions">
+                        {editingId === mv.id ? (
+                          <button onClick={() => saveEdit(mv)} className="action-btn text-[var(--success)] hover:bg-[var(--success)]/10">
+                            <Save size={14} />
+                          </button>
+                        ) : (
+                          <button onClick={() => startEdit(mv)} className="action-btn edit">
+                            <Edit2 size={14} />
+                          </button>
+                        )}
+                        <button onClick={() => confirmDelete(mv)} className="action-btn del">
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {movements.length === 0 && (
+                  <tr>
+                    <td colSpan="6" className="text-center py-8 text-[var(--muted)]">No hay movimientos registrados</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
+
+      {/* Confirm Dialog Modal */}
+      {confirmDialog && (
+        <div className="overlay show">
+          <div className="modal confirm-modal">
+            <div className="flex justify-center mb-2">
+              <div className="w-16 h-16 rounded-full bg-[var(--danger-bg)] flex items-center justify-center text-[var(--danger)]">
+                <AlertTriangle size={32} />
+              </div>
+            </div>
+            <h3 className="confirm-title">{confirmDialog.title}</h3>
+            <p className="confirm-desc">{confirmDialog.desc}</p>
+            <div className="confirm-btns">
+              <button className="btn btn-ghost" onClick={() => setConfirmDialog(null)}>Cancelar</button>
+              <button className="btn btn-danger" onClick={confirmDialog.onConfirm}>Eliminar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

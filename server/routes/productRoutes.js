@@ -1,14 +1,7 @@
 const express = require("express");
 const router = express.Router();
 let { products, movements, save } = require("../data/store");
-const { createClient } = require("@supabase/supabase-js");
-
-const SUPABASE_URL = process.env.SUPABASE_URL || null;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || null;
-const hasSupabase = !!(SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY);
-const supabase = hasSupabase
-  ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
-  : null;
+const { supabase, hasSupabase } = require("../config/supabaseClient");
 
 // Get Products
 router.get("/", async (req, res) => {
@@ -164,7 +157,7 @@ router.delete("/:id", async (req, res) => {
 });
 
 // Export Products as CSV (Excel compatible)
-router.get("/export", (req, res) => {
+router.get("/export", async (req, res) => {
   const header = [
     "id",
     "name",
@@ -175,7 +168,22 @@ router.get("/export", (req, res) => {
     "minStock",
     "expirationDate",
   ].join(",");
-  const lines = products.map((p) =>
+
+  let exportProducts = products;
+
+  if (hasSupabase) {
+    try {
+      const { data } = await supabase
+        .from("products")
+        .select("id, name, category, price, cost, stock, minStock, expirationDate")
+        .order("id", { ascending: true });
+      if (data) exportProducts = data;
+    } catch {
+      // Fall through to local data if Supabase fails
+    }
+  }
+
+  const lines = exportProducts.map((p) =>
     [
       p.id,
       JSON.stringify(p.name),
@@ -222,6 +230,7 @@ router.post("/import", (req, res) => {
     created.push(newProduct);
   }
   products.push(...created);
+  save(); // FIX: persist imported products to disk
   res.status(201).json({ created });
 });
 

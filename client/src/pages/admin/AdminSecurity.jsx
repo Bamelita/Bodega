@@ -16,11 +16,6 @@ const AdminSecurity = () => {
     };
 
     useEffect(() => {
-        // Fetch sessions
-        api.get('/settings/sessions')
-            .then(res => setSessions(res.data || []))
-            .catch(() => { });
-
         // Fetch users for dropdown
         api.get('/users')
             .then(res => setUsers(res.data || []))
@@ -59,12 +54,12 @@ const AdminSecurity = () => {
 
     return (
         <div className="page active">
-            <div className="section-header mb-3">
+            <div className="section-header mb-4">
                 <div className="section-title flex items-center gap-2">
-                    <Shield className="text-[var(--purple)]" size={20} /> Seguridad
+                    <Shield className="text-[var(--purple)]" size={20} /> 
+                    <span>Seguridad <small>Protege tu cuenta y cambia tu contraseña.</small></span>
                 </div>
             </div>
-            <p className="text-sm text-[var(--muted)] mb-4">Protege tu cuenta y gestiona tus sesiones activas.</p>
 
             {status.message && (
                 <div className={`alert-banner mb-6 ${status.type === 'success' ? '!bg-[var(--success-bg)] !text-[var(--success)] !border-[var(--success)]' : 'alert-danger'}`}>
@@ -117,40 +112,7 @@ const AdminSecurity = () => {
                     </div>
                 </div>
 
-                {/* 2FA Preview */}
-                <div className="card">
-                    <div className="card-body p-6 flex justify-between items-center">
-                        <div>
-                            <h3 className="font-semibold text-lg">Verificación en dos pasos (2FA)</h3>
-                            <p className="text-sm text-[var(--muted)] mt-1">Añade una capa extra de seguridad a tu cuenta.</p>
-                        </div>
-                        <button className="btn btn-ghost border border-[var(--glass-border)]">Configurar</button>
-                    </div>
-                </div>
 
-                {/* Active Sessions */}
-                <div className="card">
-                    <div className="card-header flex justify-between items-center">
-                        <div className="card-title">Sesiones Activas</div>
-                        <button className="text-[var(--danger)] text-sm hover:underline bg-transparent border-0 cursor-pointer">Cerrar todas las sesiones</button>
-                    </div>
-                    <div className="card-body p-6 space-y-2">
-                        {sessions.map(s => (
-                            <div key={s.id} className="flex items-center justify-between p-3 rounded-lg bg-[var(--glass-white)]">
-                                <div className="flex items-center gap-3">
-                                    {s.device.includes('iPhone') || s.device.includes('Mobile') ? <Smartphone size={20} className="text-[var(--muted)]" /> : <Monitor size={20} className="text-[var(--muted)]" />}
-                                    <div>
-                                        <p className="font-medium">{s.device}</p>
-                                        <p className="text-xs text-[var(--muted)]">{s.ip} • {s.location}</p>
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                    {s.current ? <span className="badge badge-active">Actual</span> : <span className="text-xs text-[var(--muted)]">Activo: {new Date(s.lastActive).toLocaleDateString()}</span>}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
             </div>
         </div>
     );

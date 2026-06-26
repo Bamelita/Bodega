@@ -36,9 +36,15 @@ npm install
 3. **Configurar el entorno**
 
 ```bash
+# Servidor
 cd server
 cp .env.example .env
-# Edita .env con tus configuraciones
+# Edita .env con tus configuraciones backend (PORT, JWT_SECRET, etc.)
+
+# Cliente
+cd ../client
+cp .env.example .env
+# Edita .env con la URL de la API (VITE_API_URL)
 ```
 
 4. **Inicializar la base de datos**
@@ -50,12 +56,14 @@ node seed.js
 
 5. **Iniciar la aplicación**
 
+Para iniciar tanto el backend como el frontend simultáneamente (con `concurrently` y `nodemon` para desarrollo):
+
 ```bash
 # Desde el directorio raíz
-npm start
+npm run dev
 ```
 
-Accede a la aplicación en: `http://localhost:5173`
+Accede a la aplicación en: `http://localhost:3000`
 
 **Credenciales por defecto:**
 
@@ -117,13 +125,16 @@ BACKUP_SCHEDULE=0 2 * * *  # Diariamente a las 2 AM
 
 Consulta `walkthrough.md` para ver la guía detallada de las funcionalidades.
 
-## 🛡️ Seguridad
+## 🛡️ Seguridad y Optimización
 
-- Contraseñas encriptadas con bcrypt
-- Autenticación con token JWT
-- Autorización basada en roles
-- Registro completo de auditoría
-- Rastreo de direcciones IP
+- Contraseñas encriptadas con `bcrypt`.
+- Autenticación con token JWT.
+- Autorización estricta basada en roles (`requireAdmin` middleware).
+- Protección de encabezados HTTP con `helmet`.
+- Logging de peticiones con `morgan`.
+- Compresión de respuestas HTTP con `compression` para optimizar ancho de banda.
+- Limitación de solicitudes con `express-rate-limit` para mitigar ataques DDoS/Fuerza bruta.
+- Registro completo de auditoría y rastreo de direcciones IP.
 
 ## 🛠️ Solución de Problemas
 
@@ -134,8 +145,8 @@ Consulta `walkthrough.md` para ver la guía detallada de las funcionalidades.
 netstat -ano | findstr :3001
 taskkill /PID <PID> /F
 
-# Matar el proceso en el puerto 5173
-netstat -ano | findstr :5173
+# Matar el proceso en el puerto 3000 (Vite)
+netstat -ano | findstr :3000
 taskkill /PID <PID> /F
 ```
 
