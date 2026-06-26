@@ -30,7 +30,8 @@
       "startDate": "2026-05-04T22:14:57.941Z",
       "paymentMethod": "Efectivo",
       "paymentAmount": 0,
-      "cutoffDate": ""
+      "cutoffDate": "",
+      "planId": 1
     }
   ],
   "products": [

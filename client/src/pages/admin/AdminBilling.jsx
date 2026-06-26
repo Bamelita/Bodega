@@ -63,6 +63,16 @@ const AdminBilling = () => {
         }
     };
 
+    const handleUserPlanChange = async (userId, newPlanId) => {
+        try {
+            await api.put(`/users/${userId}`, { planId: newPlanId });
+            setUsers(users.map(u => u.id === userId ? { ...u, planId: newPlanId } : u));
+        } catch (error) {
+            console.error(error);
+            alert('Error al actualizar el plan del usuario');
+        }
+    };
+
     const resetForm = () => {
         setFormData({ name: '', price: '', currency: 'USD', features: ['', '', '', ''], status: 'active' });
         setEditingId(null);
@@ -98,7 +108,7 @@ const AdminBilling = () => {
                 </button>
             </div>
             
-            <p className="text-sm text-[var(--muted)] mb-4">Crea y administra los planes de suscripción para tus usuarios.</p>
+            <p className="text-sm font-medium opacity-80 mb-4" style={{ color: 'inherit' }}>Crea y administra los planes de suscripción para tus usuarios.</p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                 {plans.map(plan => (
@@ -162,7 +172,18 @@ const AdminBilling = () => {
                             {users.map(user => (
                                 <tr key={user.id}>
                                     <td className="fw-8">{user.username}</td>
-                                    <td>{plans.find(p => p.id === user.planId)?.name || 'Sin Plan'}</td>
+                                    <td>
+                                        <select 
+                                            value={user.planId || ''} 
+                                            onChange={(e) => handleUserPlanChange(user.id, e.target.value ? Number(e.target.value) : null)}
+                                            className="border border-[var(--glass-border)] rounded px-2 py-1 bg-white/50 dark:bg-slate-800/50 text-sm outline-none cursor-pointer"
+                                        >
+                                            <option value="">Sin Plan</option>
+                                            {plans.map(p => (
+                                                <option key={p.id} value={p.id}>{p.name}</option>
+                                            ))}
+                                        </select>
+                                    </td>
                                     <td>
                                         <span className={`badge ${user.isActive ? 'badge-active' : 'badge-inactive'}`}>
                                             {user.isActive ? 'Activo' : 'Suspendido'}
