@@ -13,7 +13,7 @@ router.get("/notifications", (req, res) => {
 });
 
 router.patch("/notifications", (req, res) => {
-  store.notifications = { ...store.notifications, ...req.body };
+  Object.assign(store.notifications, req.body);
   store.save();
   res.json(store.notifications);
 });
@@ -23,7 +23,7 @@ router.get("/system", (req, res) => {
 });
 
 router.patch("/system", (req, res) => {
-  store.systemConfig = { ...store.systemConfig, ...req.body };
+  Object.assign(store.systemConfig, req.body);
   store.save();
   res.json(store.systemConfig);
 });
