@@ -13,10 +13,12 @@ const AdminProfile = () => {
     const [loadingUsers, setLoadingUsers] = useState(false);
     const [editingUser, setEditingUser] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [plans, setPlans] = useState([]);
 
     useEffect(() => {
         if (user?.role === 'admin') {
             fetchUsers();
+            fetchPlans();
         }
     }, [user]);
 
@@ -30,6 +32,15 @@ const AdminProfile = () => {
             showStatus('error', 'Error al cargar usuarios');
         } finally {
             setLoadingUsers(false);
+        }
+    };
+
+    const fetchPlans = async () => {
+        try {
+            const res = await api.get('/plans');
+            setPlans(res.data);
+        } catch (error) {
+            console.error("Error fetching plans:", error);
         }
     };
 
@@ -295,6 +306,18 @@ const AdminProfile = () => {
                                             <option value="admin">Administrador</option>
                                         </select>
                                     </div>
+                                </div>
+                                <div className="field">
+                                    <label>Plan de Suscripción</label>
+                                    <select
+                                        value={editingUser.planId || ''}
+                                        onChange={e => setEditingUser({ ...editingUser, planId: e.target.value ? Number(e.target.value) : null })}
+                                    >
+                                        <option value="">Sin Plan (Gratuito)</option>
+                                        {plans.map(p => (
+                                            <option key={p.id} value={p.id}>{p.name} - ${p.price}/mes</option>
+                                        ))}
+                                    </select>
                                 </div>
                                 <div className="field flex items-center gap-2 flex-row-reverse justify-end mt-2">
                                     <label htmlFor="isActive" className="mb-0 cursor-pointer">Usuario Activo</label>

@@ -17,7 +17,7 @@ router.get("/", async (req, res) => {
     const { data, error } = await supabase
       .from("users")
       .select(
-        "id, username, role, firstName, lastName, email, cedula, phone, isActive, startDate",
+        "id, username, role, firstName, lastName, email, cedula, phone, isActive, startDate, planId",
       )
       .order("id", { ascending: true });
     if (error) throw error;
@@ -87,7 +87,7 @@ router.post("/", async (req, res) => {
       .from("users")
       .insert([newUserObj])
       .select(
-        "id, username, role, firstName, lastName, email, cedula, phone, isActive, startDate",
+        "id, username, role, firstName, lastName, email, cedula, phone, isActive, startDate, planId",
       )
       .single();
 
@@ -113,6 +113,7 @@ router.put("/:id", async (req, res) => {
     isActive,
     password,
     role,
+    planId,
   } = req.body;
 
   const updates = {};
@@ -123,6 +124,7 @@ router.put("/:id", async (req, res) => {
   if (cedula !== undefined) updates.cedula = cedula;
   if (phone !== undefined) updates.phone = phone;
   if (isActive !== undefined) updates.isActive = isActive;
+  if (planId !== undefined) updates.planId = planId;
   // Never allow changing a role to "admin" via PUT
   if (role !== undefined) {
     if (role === 'admin') {
@@ -150,7 +152,7 @@ router.put("/:id", async (req, res) => {
       .update(updates)
       .eq("id", id)
       .select(
-        "id, username, role, firstName, lastName, email, cedula, phone, isActive, startDate",
+        "id, username, role, firstName, lastName, email, cedula, phone, isActive, startDate, planId",
       )
       .single();
 
