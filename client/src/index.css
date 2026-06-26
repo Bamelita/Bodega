@@ -114,7 +114,6 @@
   backdrop-filter: blur(24px) saturate(1.6);
   -webkit-backdrop-filter: blur(24px) saturate(1.6);
   border-right: 1.5px solid var(--glass-border);
-  box-shadow: 4px 0 32px rgba(130,80,180,0.08);
   display: flex;
   flex-direction: column;
   padding: 1.75rem 0;
@@ -222,7 +221,6 @@
   background: rgba(255,255,255,.72);
   color: var(--purple);
   border-color: rgba(167,139,250,.3);
-  box-shadow: 0 4px 16px rgba(124,58,237,.1);
   font-weight: 700;
 }
 .nav-item.active svg { opacity: 1; color: var(--purple); }
@@ -807,7 +805,7 @@ html.dark .toast {
 html.dark .brand { border-bottom-color: var(--glass-border); }
 html.dark .sidebar-footer { border-top-color: var(--glass-border); }
 html.dark .nav-item:hover { background: var(--glass-mid); border-color: var(--glass-border); }
-html.dark .nav-item.active { background: var(--glass-mid); border-color: var(--purple); box-shadow: 0 4px 16px rgba(56,189,248,.1); color: var(--pink-light); }
+html.dark .nav-item.active { background: var(--glass-mid); border-color: var(--purple); color: var(--pink-light); }
 html.dark .nav-item.active svg { color: var(--pink-light); }
 html.dark .user-card { background: var(--glass-mid); border-color: var(--glass-border); }
 html.dark .user-card:hover { background: var(--glass-white); }
