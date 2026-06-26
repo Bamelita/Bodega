@@ -17,7 +17,7 @@ router.get("/", async (req, res) => {
     const { data, error } = await supabase
       .from("users")
       .select(
-        "id, username, role, firstName, lastName, email, cedula, phone, isActive, startDate, planId",
+        "id, username, role, firstName, lastName, email, cedula, phone, isActive, startDate, planId, cutoffDate",
       )
       .order("id", { ascending: true });
     if (error) throw error;
@@ -40,6 +40,7 @@ router.post("/", async (req, res) => {
     email,
     cedula,
     phone,
+    cutoffDate,
   } = req.body;
 
   if (!username || !password || !firstName || !lastName || !email) {
@@ -68,7 +69,7 @@ router.post("/", async (req, res) => {
     startDate: new Date().toISOString(),
     paymentMethod: "Efectivo",
     paymentAmount: 0,
-    cutoffDate: "",
+    cutoffDate: cutoffDate || "",
   };
 
   if (!hasSupabase) {
@@ -87,7 +88,7 @@ router.post("/", async (req, res) => {
       .from("users")
       .insert([newUserObj])
       .select(
-        "id, username, role, firstName, lastName, email, cedula, phone, isActive, startDate, planId",
+        "id, username, role, firstName, lastName, email, cedula, phone, isActive, startDate, planId, cutoffDate",
       )
       .single();
 
@@ -114,6 +115,7 @@ router.put("/:id", async (req, res) => {
     password,
     role,
     planId,
+    cutoffDate,
   } = req.body;
 
   const updates = {};
@@ -125,6 +127,7 @@ router.put("/:id", async (req, res) => {
   if (phone !== undefined) updates.phone = phone;
   if (isActive !== undefined) updates.isActive = isActive;
   if (planId !== undefined) updates.planId = planId;
+  if (cutoffDate !== undefined) updates.cutoffDate = cutoffDate;
   // Never allow changing a role to "admin" via PUT
   if (role !== undefined) {
     if (role === 'admin') {
@@ -152,7 +155,7 @@ router.put("/:id", async (req, res) => {
       .update(updates)
       .eq("id", id)
       .select(
-        "id, username, role, firstName, lastName, email, cedula, phone, isActive, startDate, planId",
+        "id, username, role, firstName, lastName, email, cedula, phone, isActive, startDate, planId, cutoffDate",
       )
       .single();
 

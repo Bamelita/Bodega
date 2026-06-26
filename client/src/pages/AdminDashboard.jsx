@@ -308,6 +308,7 @@ const AdminDashboard = () => {
                       {user.planId && plans.find(p => p.id === user.planId) 
                         ? `$${plans.find(p => p.id === user.planId).price}/mes` 
                         : 'Gratis'}
+                      <br/>Corte: {user.cutoffDate ? new Date(user.cutoffDate).toLocaleDateString() : '-'}
                     </div>
                   </td>
                   <td>
