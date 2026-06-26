@@ -109,7 +109,10 @@ const AdminBilling = () => {
             </div>
             
             <div className="mb-6">
-                <p className="text-sm font-medium text-[var(--ink)] bg-[var(--glass-white)] backdrop-blur-md px-4 py-2.5 rounded-xl shadow-sm border border-[var(--glass-border)] inline-block">
+                <p 
+                    className="text-sm font-medium text-[var(--ink)] px-4 py-2.5 rounded-xl shadow-sm inline-block" 
+                    style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.8)' }}
+                >
                     Crea y administra los planes de suscripción para tus usuarios.
                 </p>
             </div>
