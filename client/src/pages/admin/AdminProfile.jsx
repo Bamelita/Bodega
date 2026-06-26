@@ -4,7 +4,7 @@ import api from '../../config/api';
 import { Save, User, CheckCircle, AlertTriangle, Edit, Trash2, Shield, X, Search } from 'lucide-react';
 
 const AdminProfile = () => {
-    const { user } = useAuth();
+    const { user, updateUser } = useAuth();
     const [data, setData] = useState({ firstName: user?.firstName || '', lastName: user?.lastName || '', email: user?.email || '', phone: user?.phone || '' });
     const [status, setStatus] = useState({ type: '', message: '' });
 
@@ -51,8 +51,14 @@ const AdminProfile = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // Implement logic to update own profile if needed, currently just shows success
-        showStatus('success', 'Perfil actualizado correctamente');
+        try {
+            const res = await api.put(`/users/${user.id}`, data);
+            if (updateUser) updateUser(res.data);
+            showStatus('success', 'Perfil actualizado correctamente');
+        } catch (error) {
+            console.error("Error updating profile:", error);
+            showStatus('error', error.response?.data?.message || 'Error al actualizar perfil');
+        }
     };
 
     const handleUpdateUser = async (e) => {
