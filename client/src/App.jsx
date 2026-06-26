@@ -60,8 +60,8 @@ const App = () => {
     return (
         <ErrorBoundary>
         <BrowserRouter>
-            <ThemeProvider>
-                <AuthProvider>
+            <AuthProvider>
+                <ThemeProvider>
                     <ToastProvider>
                         <Suspense fallback={<LoadingSpinner />}>
                             <Routes>
@@ -96,8 +96,8 @@ const App = () => {
                             </Routes>
                         </Suspense>
                     </ToastProvider>
-                </AuthProvider>
-            </ThemeProvider>
+                </ThemeProvider>
+            </AuthProvider>
         </BrowserRouter>
         </ErrorBoundary>
     );

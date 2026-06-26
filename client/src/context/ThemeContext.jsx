@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../config/api';
+import { useAuth } from './AuthContext';
 
 export const THEMES = [
   { name: 'Morado', color: '#7c3aed', light: '#a78bfa' },
@@ -12,6 +13,7 @@ export const THEMES = [
 const ThemeContext = createContext(null);
 
 export const ThemeProvider = ({ children }) => {
+  const { user } = useAuth();
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem('theme') === 'dark' ||
@@ -65,11 +67,15 @@ export const ThemeProvider = ({ children }) => {
 
   // Apply Theme Color to CSS Variable
   useEffect(() => {
-    const selected = THEMES.find(t => t.color === themeColor) || THEMES[0];
+    let effectiveColor = themeColor;
+    if (user && user.role !== 'admin') {
+      effectiveColor = THEMES[0].color;
+    }
+    const selected = THEMES.find(t => t.color === effectiveColor) || THEMES[0];
     document.documentElement.style.setProperty('--purple', selected.color);
     document.documentElement.style.setProperty('--purple-light', selected.light);
-    localStorage.setItem('themeColor', themeColor);
-  }, [themeColor]);
+    localStorage.setItem('themeColor', effectiveColor);
+  }, [themeColor, user]);
 
   const toggleTheme = () => setDarkMode(prev => !prev);
 
