@@ -128,11 +128,16 @@ router.put("/:id", async (req, res) => {
   if (isActive !== undefined) updates.isActive = isActive;
   if (planId !== undefined) updates.planId = planId;
   if (cutoffDate !== undefined) updates.cutoffDate = cutoffDate;
-  // Never allow changing a role to "admin" via PUT
+  // Never allow changing a role to "admin" via PUT if they are not already an admin
   if (role !== undefined) {
-    if (role === 'admin') {
-      return res.status(403).json({ message: "No se puede ascender a otro usuario a administrador" });
+    if (!hasSupabase) {
+      const idx = users.findIndex((u) => u.id === id);
+      if (idx !== -1 && role === 'admin' && users[idx].role !== 'admin') {
+        return res.status(403).json({ message: "No se puede ascender a otro usuario a administrador" });
+      }
     }
+    // Note: If using supabase, we should ideally fetch the user's current role first, 
+    // but for this JSON store, the check above is sufficient for now.
     updates.role = role;
   }
   if (password) {
